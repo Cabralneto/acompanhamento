@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acompanhamento Diário — Parkinson / DBS (v3)</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#273449; --txt:#e2e8f0; --muted:#94a3b8;
+    --accent:#38bdf8; --good:#34d399; --warn:#fbbf24; --bad:#f87171; --line:#334155;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg);color:var(--txt);font-size:17px;line-height:1.5}
+  header{background:linear-gradient(135deg,#1e3a8a,#0369a1);padding:18px 16px;position:sticky;top:0;z-index:10}
+  header h1{margin:0;font-size:20px}
+  header p{margin:4px 0 0;font-size:13px;color:#cbd5e1}
+  .wrap{max-width:760px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+  h2{font-size:17px;margin:0 0 12px;color:var(--accent)}
+  h3{font-size:15px;margin:14px 0 6px;color:var(--txt)}
+  label{display:block;font-size:14px;color:var(--muted);margin:12px 0 4px}
+  input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);
+    color:var(--txt);border-radius:10px;padding:11px;font-size:16px;font-family:inherit}
+  textarea{min-height:70px;resize:vertical}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row>div{flex:1;min-width:130px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .seg button{flex:1;min-width:54px;background:var(--card2);border:1px solid var(--line);
+    color:var(--txt);border-radius:10px;padding:10px 6px;font-size:15px;cursor:pointer}
+  .seg button.on{background:var(--accent);color:#06263a;font-weight:700;border-color:var(--accent)}
+  .scale button.on{background:var(--warn);color:#3a2a06;border-color:var(--warn)}
+  .scale.high button.on{background:var(--bad);color:#3a0606;border-color:var(--bad)}
+  .btn{display:block;width:100%;background:var(--accent);color:#06263a;border:none;
+    border-radius:12px;padding:14px;font-size:17px;font-weight:700;cursor:pointer;margin-top:8px}
+  .btn.alt{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+  .btn.sm{padding:9px;font-size:14px;width:auto}
+  .tabs{display:flex;gap:6px;margin:14px 0;flex-wrap:wrap}
+  .tabs button{flex:1;min-width:84px;background:var(--card2);border:1px solid var(--line);color:var(--muted);
+    border-radius:10px;padding:10px 6px;cursor:pointer;font-size:14px}
+  .tabs button.on{background:var(--accent);color:#06263a;font-weight:700}
+  .hide{display:none}
+  table{width:100%;border-collapse:collapse;font-size:13px;display:block;overflow-x:auto;white-space:nowrap}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left}
+  th{background:var(--card2);color:var(--muted)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;font-weight:600;background:#334155}
+  .pill.g{background:#064e3b;color:var(--good)} .pill.w{background:#451a03;color:var(--warn)} .pill.b{background:#450a0a;color:var(--bad)}
+  .alert{background:#451a03;border:1px solid var(--warn);color:#fde68a;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}
+  .danger{background:#450a0a;border:1px solid var(--bad);color:#fecaca}
+  .ok{background:#064e3b;border:1px solid #34d399;color:#a7f3d0}
+  .emergency{background:#7f1d1d;border:2px solid #f87171;border-radius:12px;padding:14px;margin:14px 0}
+  .emergency b{color:#fff}
+  .note{font-size:12px;color:var(--muted);margin-top:6px}
+  ul{margin:6px 0;padding-left:20px} li{margin:4px 0}
+  .summary{background:var(--card2);border-radius:10px;padding:14px;font-size:14px;white-space:pre-wrap;line-height:1.6;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .foot{font-size:12px;color:var(--muted);text-align:center;padding:20px 0}
+  .disc{background:#1e293b;border-left:4px solid var(--warn);padding:10px 12px;font-size:13px;color:#cbd5e1;border-radius:6px;margin:10px 0}
+  .big{display:flex;flex-direction:column;gap:10px}
+  .big button{font-size:19px;padding:18px;border-radius:14px;border:2px solid var(--line);background:var(--card2);color:var(--txt);cursor:pointer;font-weight:600;text-align:left}
+  .big button.on{background:var(--accent);color:#06263a;border-color:var(--accent)}
+  .faces{display:flex;gap:10px}
+  .faces button{flex:1;font-size:15px;padding:14px 6px;border-radius:14px;border:2px solid var(--line);background:var(--card2);color:var(--txt);cursor:pointer;font-weight:600}
+  .faces button .em{font-size:30px;display:block;margin-bottom:4px}
+  .faces button.on{border-color:var(--accent);background:#0b3a4d}
+  .doseRow{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0}
+  .doseRow.done{opacity:.55}
+  .doseBtn{background:var(--accent);color:#06263a;border:none;border-radius:10px;padding:13px 18px;font-weight:700;font-size:16px;cursor:pointer;white-space:nowrap}
+  .doseBtn.done{background:#064e3b;color:var(--good)}
+  .medItem{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .medItem .info{font-size:14px}
+  .medItem .info small{color:var(--muted);display:block;word-break:break-all}
+  .x{background:#450a0a;color:#fecaca;border:1px solid #f87171;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧠 Acompanhamento Diário <small style="font-size:12px;opacity:.7">v3.1</small></h1>
+  <p>Parkinson com estimulação cerebral profunda (DBS) — registro para levar ao médico</p>
+</header>
+
+<div class="wrap">
+
+  <div class="disc">
+    ⚠️ Este app <b>apenas registra e organiza informações</b>. Ele <b>não diagnostica</b>,
+    <b>não prescreve</b>, <b>não sugere mudança de remédio</b> nem <b>alteração na programação do
+    estimulador (DBS)</b>. Nenhuma recomendação clínica é feita pelo app. Qualquer mudança deve ser
+    sempre <b>validada pelo médico</b>.
+  </div>
+
+  <div class="tabs">
+    <button id="tSimples" class="on" onclick="tab('simples')">🏠 Simples</button>
+    <button id="tCheck" onclick="tab('check')">Check-in</button>
+    <button id="tPaci" onclick="tab('paci')">Paciente</button>
+    <button id="tMeds" onclick="tab('meds')">Remédios</button>
+    <button id="tReg" onclick="tab('reg')">Registros</button>
+    <button id="tDay" onclick="tab('day')">Resumo dia</button>
+    <button id="tWeek" onclick="tab('week')">Relatório</button>
+    <button id="tData" onclick="tab('backup')">Backup</button>
+  </div>
+
+  <!-- ====== SIMPLES (tela inicial) ====== -->
+  <section id="simples">
+    <div class="card">
+      <h2>💊 Remédios de hoje</h2>
+      <p class="note">Toque em <b>“Tomou”</b> quando ele tomar cada dose. A hora é registrada sozinha.</p>
+      <div id="doseList"></div>
+    </div>
+
+    <div class="card">
+      <h2>🙂 Como ele está agora?</h2>
+      <div class="big" id="sEstado">
+        <button data-v="ON sem discinesia">🙂 Bem — remédio fazendo efeito</button>
+        <button data-v="OFF (travado/lento)">😕 Travado / lento (OFF)</button>
+        <button data-v="ON com discinesia incômoda">🌀 Com movimento involuntário</button>
+        <button data-v="Dormindo">😴 Dormindo</button>
+      </div>
+      <label style="margin-top:16px">Tremor agora</label>
+      <div class="faces" id="sTremor">
+        <button data-v="2"><span class="em">🙂</span>Pouco</button>
+        <button data-v="5"><span class="em">😐</span>Médio</button>
+        <button data-v="8"><span class="em">☹️</span>Forte</button>
+      </div>
+      <label style="margin-top:16px">Observação (opcional) — fale ou digite</label>
+      <button class="btn alt" id="micBtn" onclick="toggleVoz()" style="font-size:16px;padding:13px">🎤 Falar observação</button>
+      <textarea id="sObs" placeholder="Ex.: travou na cozinha de manhã. (A fala aparece aqui — ou digite.)"></textarea>
+      <button class="btn" onclick="salvarEstado()" style="margin-top:8px;font-size:19px;padding:18px">✅ Salvar como ele está</button>
+      <div id="sMsg"></div>
+    </div>
+
+    <div class="emergency">
+      <b>🚑 Em emergência ligue SAMU 192:</b> queda com batida na cabeça/ferimento, confusão importante,
+      perda de consciência, piora súbita, falta de ar ou dor no peito.
+    </div>
+  </section>
+
+  <!-- ====== PACIENTE ====== -->
+  <section id="paci" class="hide">
+    <div class="card">
+      <h2>👤 Dados do paciente</h2>
+      <button class="btn alt" onclick="preencherPaciente()">📄 Preencher com dados do relatório médico</button>
+      <div class="note">Preenche os dados conhecidos do relatório. Confira tudo e complete o que faltar.</div>
+      <label>Nome do paciente</label>
+      <input type="text" id="pNome" placeholder="Nome completo">
+      <div class="row">
+        <div><label>Data de nascimento</label><input type="date" id="pNasc"></div>
+        <div><label>Idade (se não tiver a data)</label><input type="text" id="pIdade" inputmode="numeric" placeholder="Ex.: 62"></div>
+      </div>
+      <div class="row">
+        <div><label>Sexo</label><input type="text" id="pSexo" placeholder="Ex.: Masculino"></div>
+        <div><label>Ano da cirurgia DBS</label><input type="text" id="pAnoDBS" inputmode="numeric" placeholder="Ex.: 2024"></div>
+      </div>
+      <div class="row">
+        <div><label>Diagnóstico</label><input type="text" id="pDiag" placeholder="Ex.: Doença de Parkinson"></div>
+        <div><label>CID-10</label><input type="text" id="pCID" placeholder="Ex.: G20"></div>
+      </div>
+      <div class="row">
+        <div><label>Início dos sintomas (ano)</label><input type="text" id="pInicio" inputmode="numeric" placeholder="Ex.: 2014"></div>
+        <div><label>Acompanhamento desde (ano)</label><input type="text" id="pAcomp" inputmode="numeric" placeholder="Ex.: 2019"></div>
+      </div>
+      <label>DBS desde (mês/ano)</label>
+      <input type="text" id="pDBSDesde" placeholder="Ex.: junho/2024">
+      <div class="row">
+        <div><label>Hospital da cirurgia</label><input type="text" id="pHosp" placeholder="Onde foi feita a DBS"></div>
+        <div><label>Médico responsável</label><input type="text" id="pMed" placeholder="Neurologista / neurocirurgião"></div>
+      </div>
+      <div class="row">
+        <div><label>Fabricante do estimulador</label><input type="text" id="pFab" placeholder="Ex.: Medtronic, Boston, Abbott"></div>
+        <div><label>Modelo do aparelho</label><input type="text" id="pModelo" placeholder="Modelo / nº"></div>
+      </div>
+      <label>Alvo do DBS (se souber)</label>
+      <div class="seg" id="pAlvo">
+        <button data-v="STN">STN</button>
+        <button data-v="GPi">GPi</button>
+        <button data-v="Outro">Outro</button>
+        <button data-v="Não sei">Não sei</button>
+      </div>
+      <label>Telefone de emergência</label>
+      <input type="text" id="pTel" placeholder="Contato da família / cuidador">
+      <label>Observações clínicas importantes</label>
+      <textarea id="pObs" placeholder="Alergias, outras doenças, marca-passo, anticoagulante, quedas frequentes, etc."></textarea>
+      <button class="btn" onclick="salvarPaciente()">💾 Salvar dados do paciente</button>
+      <div id="paciMsg"></div>
+    </div>
+  </section>
+
+  <!-- ====== CHECK-IN ====== -->
+  <section id="check" class="hide">
+    <div class="card" style="border-color:var(--accent)">
+      <p class="note">📋 Este é o <b>registro detalhado</b> — use para episódios, quedas ou perto da consulta.
+        Para o dia a dia, use a aba <b>🏠 Simples</b>.</p>
+    </div>
+
+    <div class="card">
+      <h2>📌 Tipo de check-in</h2>
+      <div class="seg" id="tipo">
+        <button data-v="Manhã">Manhã</button>
+        <button data-v="Antes do remédio">Antes do remédio</button>
+        <button data-v="30 min após remédio">30 min após</button>
+        <button data-v="1 hora após remédio">1h após</button>
+        <button data-v="Tarde">Tarde</button>
+        <button data-v="Noite">Noite</button>
+        <button data-v="Episódio específico">Episódio específico</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🗓️ Quando / quem</h2>
+      <div class="row">
+        <div><label>Data</label><input type="date" id="data"></div>
+        <div><label>Hora</label><input type="time" id="hora"></div>
+      </div>
+      <label>Quem está respondendo</label>
+      <input type="text" id="respondente" placeholder="Ex.: João (filho), Maria (esposa), o próprio paciente">
+    </div>
+
+    <div class="card">
+      <h2>💊 Remédio</h2>
+      <label>Selecione um remédio cadastrado</label>
+      <select id="remedioSel" onchange="onMedSelect()">
+        <option value="">— escolher / digitar manualmente —</option>
+      </select>
+      <div class="row">
+        <div><label>Remédio</label><input type="text" id="remedio" placeholder="Nome"></div>
+        <div><label>Dose</label><input type="text" id="dose" placeholder="Ex.: 1 comp."></div>
+      </div>
+      <label>Horário previsto desta dose</label>
+      <select id="horarioPrevisto" onchange="calcAtraso()">
+        <option value="">— selecione o remédio acima —</option>
+      </select>
+      <div class="row">
+        <div>
+          <label>Horário real que tomou</label>
+          <input type="time" id="horaRem" onchange="calcAtraso()">
+        </div>
+        <div>
+          <label>Atraso (min, automático)</label>
+          <input type="text" id="atrasoMin" readonly placeholder="—">
+        </div>
+      </div>
+      <label>Status da dose</label>
+      <div class="seg" id="statusDose">
+        <button data-v="No horário">No horário</button>
+        <button data-v="Atrasado">Atrasado</button>
+        <button data-v="Esquecido">Esquecido</button>
+        <button data-v="Parcial">Parcial</button>
+      </div>
+      <label>⏱️ Tempo em relação ao remédio (momento da avaliação)</label>
+      <div class="seg" id="tempoRem">
+        <button data-v="Antes">Antes</button>
+        <button data-v="30 min depois">30 min</button>
+        <button data-v="1h depois">1h</button>
+        <button data-v="2h depois">2h</button>
+        <button data-v="Fim de dose">Fim de dose</button>
+        <button data-v="Não se aplica">N/A</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>✋ Tremor</h2>
+      <label>Intensidade (0 = nenhum, 10 = muito intenso)</label>
+      <div class="seg scale" id="tremor"></div>
+      <label>Lado predominante</label>
+      <div class="seg" id="tremorLado">
+        <button data-v="Nenhum">Nenhum</button>
+        <button data-v="Direito">Direito</button>
+        <button data-v="Esquerdo">Esquerdo</button>
+        <button data-v="Ambos">Ambos</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🦵 Rigidez</h2>
+      <label>Intensidade (0 = nenhuma, 10 = muito rígido)</label>
+      <div class="seg scale" id="rigidez"></div>
+      <label>Lado predominante</label>
+      <div class="seg" id="rigidezLado">
+        <button data-v="Nenhuma">Nenhuma</button>
+        <button data-v="Direito">Direito</button>
+        <button data-v="Esquerdo">Esquerdo</button>
+        <button data-v="Ambos">Ambos</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🚶 Marcha</h2>
+      <label>Condição</label>
+      <div class="seg" id="marcha">
+        <button data-v="Normal">Normal</button>
+        <button data-v="Lenta">Lenta</button>
+        <button data-v="Arrastando">Arrastando</button>
+        <button data-v="Passos curtos">Passos curtos</button>
+        <button data-v="Precisa de apoio">Precisa de apoio</button>
+        <button data-v="Não anda">Não anda</button>
+      </div>
+      <label>Maior dificuldade na marcha</label>
+      <div class="seg" id="marchaLado">
+        <button data-v="Perna direita">Perna direita</button>
+        <button data-v="Perna esquerda">Perna esquerda</button>
+        <button data-v="Ambas">Ambas</button>
+        <button data-v="Não se aplica">N/A</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🗣️ Outros sintomas</h2>
+      <label>Fala</label>
+      <div class="seg" id="fala">
+        <button data-v="Normal">Normal</button>
+        <button data-v="Baixa">Baixa</button>
+        <button data-v="Enrolada">Enrolada</button>
+        <button data-v="Difícil">Difícil</button>
+      </div>
+      <label>Equilíbrio</label>
+      <div class="seg" id="equilibrio">
+        <button data-v="Bom">Bom</button>
+        <button data-v="Instável">Instável</button>
+        <button data-v="Muito instável">Muito instável</button>
+      </div>
+      <label>Engasgo</label>
+      <div class="seg" id="engasgo">
+        <button data-v="Não">Não</button><button data-v="Sim">Sim</button>
+      </div>
+      <label>Sonolência / confusão</label>
+      <div class="seg" id="sonolencia">
+        <button data-v="Não">Não</button><button data-v="Sim">Sim</button>
+      </div>
+      <label>Dor</label>
+      <div class="seg" id="dor">
+        <button data-v="Não">Não</button><button data-v="Sim">Sim</button>
+      </div>
+      <input type="text" id="dorOnde" placeholder="Se sim, onde? Ex.: lombar, ombro direito" style="margin-top:8px">
+    </div>
+
+    <div class="card">
+      <h2>⚠️ Travamento / quedas</h2>
+      <label>Houve travamento (freezing)?</label>
+      <div class="seg" id="travamento">
+        <button data-v="Não">Não</button><button data-v="Sim">Sim</button>
+      </div>
+      <label>Houve queda ou quase queda?</label>
+      <div class="seg" id="queda">
+        <button data-v="Não">Não</button>
+        <button data-v="Quase queda">Quase queda</button>
+        <button data-v="Queda">Queda</button>
+      </div>
+      <label>📹 Foi gravado vídeo do episódio?</label>
+      <div class="seg" id="video">
+        <button data-v="Não">Não</button><button data-v="Sim">Sim</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🟢🔴 Estado motor (ON/OFF)</h2>
+      <label>Como ele está neste momento?</label>
+      <div class="seg" id="estadoMotor">
+        <button data-v="OFF (travado/lento)">OFF (travado/lento)</button>
+        <button data-v="ON sem discinesia">ON sem discinesia</button>
+        <button data-v="ON com discinesia leve">ON c/ discinesia leve</button>
+        <button data-v="ON com discinesia incômoda">ON c/ discinesia incômoda</button>
+        <button data-v="Dormindo">Dormindo</button>
+      </div>
+      <div class="note"><b>OFF</b> = remédio com pouco efeito (mais travado/lento). <b>ON</b> = remédio fazendo efeito.
+        <b>Discinesia</b> = movimentos involuntários (mexer demais, se contorcer).</div>
+    </div>
+
+    <div class="card">
+      <h2>📈 Comparação</h2>
+      <label>Comparado com ontem, está...</label>
+      <div class="seg" id="comparacao">
+        <button data-v="Melhor">Melhor</button>
+        <button data-v="Igual">Igual</button>
+        <button data-v="Pior">Pior</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔋 Estimulador (DBS)</h2>
+      <label>O estimulador está ligado?</label>
+      <div class="seg" id="estimulador">
+        <button data-v="Sim">Sim</button><button data-v="Não">Não</button><button data-v="Não sei">Não sei</button>
+      </div>
+      <label>Qual programa aparece no controle? (se a família souber)</label>
+      <input type="text" id="programa" placeholder="Ex.: Programa 1, Grupo A — ou deixe em branco">
+      <label>Bateria do estimulador</label>
+      <div class="seg" id="bateria">
+        <button data-v="OK">OK</button><button data-v="Baixa">Baixa</button><button data-v="Não sei">Não sei</button>
+      </div>
+      <label>Apareceu algum alerta no controle?</label>
+      <div class="seg" id="alertaCtrl">
+        <button data-v="Não">Não</button><button data-v="Sim">Sim</button><button data-v="Não sei">Não sei</button>
+      </div>
+      <label>Houve mudança de programa desde o último registro?</label>
+      <div class="seg" id="mudouPrograma">
+        <button data-v="Não">Não</button><button data-v="Sim">Sim</button><button data-v="Não sei">Não sei</button>
+      </div>
+      <label>Nível exibido no controle (se aparecer)</label>
+      <input type="text" id="nivelCtrl" placeholder="Ex.: nível/valor que aparece na tela — ou deixe em branco">
+      <div class="note">Apenas anote o que aparece. Não altere a programação do aparelho.</div>
+    </div>
+
+    <div class="card">
+      <h2>📝 Observação livre</h2>
+      <textarea id="observacao" placeholder="Como foi, humor, sono, dor, alimentação, gatilhos..."></textarea>
+    </div>
+
+    <button class="btn" onclick="salvar()">💾 Salvar registro</button>
+    <button class="btn alt" onclick="novoCheckin()">🆕 Novo check-in / limpar formulário</button>
+    <div id="saveMsg"></div>
+
+    <div class="emergency">
+      <b>🚑 Procure atendimento médico imediatamente se houver:</b>
+      <ul>
+        <li>Queda com batida na cabeça ou ferimento</li>
+        <li>Confusão importante ou perda de consciência</li>
+        <li>Piora súbita dos sintomas</li>
+        <li>Falta de ar ou dor no peito</li>
+      </ul>
+      Em emergência, ligue para o <b>SAMU 192</b> ou vá ao pronto-socorro.
+    </div>
+  </section>
+
+  <!-- ====== REMÉDIOS ====== -->
+  <section id="meds" class="hide">
+    <div class="card">
+      <h2>💊 Cadastro de remédios</h2>
+      <div class="alert">⏰ Confirme os horários exatos com a receita médica ou com o médico antes de usar lembretes automáticos.</div>
+      <button class="btn alt" onclick="addMedsRelatorio()">📄 Adicionar medicações do relatório</button>
+      <div class="note">Cadastra os remédios do relatório com dose e frequência. Os horários ficam em branco para você preencher conforme a receita.</div>
+      <label>Nome do remédio</label>
+      <input type="text" id="mNome" placeholder="Ex.: Prolopa BD 100/25mg">
+      <div class="row">
+        <div><label>Dose</label><input type="text" id="mDose" placeholder="Ex.: 1 comprimido"></div>
+        <div><label>Frequência prescrita</label><input type="text" id="mFreq" placeholder="Ex.: 4 vezes ao dia"></div>
+      </div>
+      <label>Horários previstos (pode deixar em branco e preencher depois)</label>
+      <input type="text" id="mHoras" placeholder="Ex.: 06:00, 10:00, 14:00, 18:00">
+      <button class="btn" id="btnAddMed" onclick="addMed()">➕ Adicionar remédio</button>
+      <button class="btn alt" id="btnCancelMed" onclick="cancelEditMed()" style="display:none">✖ Cancelar edição</button>
+      <h3>Remédios cadastrados</h3>
+      <div id="medList"></div>
+    </div>
+
+    <div class="card">
+      <h2>🔔 Lembretes de horário</h2>
+      <p class="note">Use os horários previstos cadastrados em cada remédio (ex.: <i>06:00, 12:00, 18:00</i>).</p>
+      <h3>1) Enquanto o app estiver aberto</h3>
+      <label>Ativar lembretes automáticos neste aparelho</label>
+      <div class="seg" id="lembreteOn">
+        <button data-v="Não">Desligado</button>
+        <button data-v="Sim">Ligado</button>
+      </div>
+      <div class="note">Toca um aviso (notificação + som) no horário de cada remédio.
+        Funciona só com esta página aberta — deixe o app aberto numa aba do celular.</div>
+      <button class="btn alt sm" onclick="pedirPermissao()" style="margin-top:10px">🔔 Permitir notificações</button>
+      <button class="btn alt sm" onclick="testarLembrete()">▶️ Testar agora</button>
+      <div id="lembreteStatus"></div>
+      <h3>2) Mesmo com o app fechado (agenda do celular)</h3>
+      <p class="note">Exporta os horários para a <b>agenda do celular</b>, que cria alarmes diários
+        e avisa mesmo com o navegador fechado.</p>
+      <button class="btn alt" onclick="exportICS()">📅 Exportar lembretes para a agenda (.ics)</button>
+    </div>
+
+    <div class="card">
+      <h2>📲 Enviar lembrete no WhatsApp</h2>
+      <div class="alert">🔒 Esta integração usa serviço externo. Evite enviar dados sensíveis. Use apenas lembretes simples.<br>
+        Evite enviar sintomas, dados clínicos ou informações sensíveis pelo WhatsApp via serviço externo. Prefira mensagens simples como "Hora do remédio".</div>
+      <p class="note">Usa o serviço gratuito <b>CallMeBot</b>. Configure uma vez:</p>
+      <ol style="font-size:13px;color:var(--muted);padding-left:18px">
+        <li>Salve o número <b>+34 644 51 95 23</b> nos contatos (CallMeBot).</li>
+        <li>Envie por WhatsApp a mensagem: <b>I allow callmebot to send me messages</b>.</li>
+        <li>Você receberá uma <b>apikey</b>. Cole abaixo junto com o número que vai receber os avisos.</li>
+      </ol>
+      <div class="row">
+        <div><label>Número que recebe (com DDI/DDD)</label><input type="text" id="waNum" placeholder="Ex.: 5511999998888"></div>
+        <div><label>API key (CallMeBot)</label><input type="text" id="waKey" placeholder="Ex.: 123456"></div>
+      </div>
+      <button class="btn alt sm" onclick="salvarWhats()" style="margin-top:10px">💾 Salvar config</button>
+      <button class="btn alt sm" onclick="testarWhats()">▶️ Enviar teste</button>
+      <label style="margin-top:14px">Enviar no WhatsApp junto com o lembrete? (app aberto)</label>
+      <div class="seg" id="waOn">
+        <button data-v="Não">Não</button><button data-v="Sim">Sim</button>
+      </div>
+      <div id="waStatus"></div>
+      <h3>Para funcionar com o app fechado</h3>
+      <p class="note">Gere os links agendados e cadastre cada um, no horário certo, num agendador
+        gratuito como <b>cron-job.org</b>.</p>
+      <button class="btn alt" onclick="gerarLinks()">🔗 Gerar links agendados</button>
+      <div id="waLinks"></div>
+    </div>
+  </section>
+
+  <!-- ====== REGISTROS ====== -->
+  <section id="reg" class="hide">
+    <div class="card">
+      <h2>📋 Registros salvos</h2>
+      <div id="tabela"></div>
+      <button class="btn alt" onclick="exportCSV()" style="margin-top:14px">⬇️ Exportar registros (CSV)</button>
+    </div>
+  </section>
+
+  <!-- ====== RESUMO DIA ====== -->
+  <section id="day" class="hide">
+    <div class="card">
+      <h2>📅 Resumo do dia</h2>
+      <label>Escolha o dia</label>
+      <input type="date" id="diaSel" onchange="resumoDia()">
+      <div id="alertDia"></div>
+      <div class="summary" id="resDia">Selecione um dia.</div>
+      <button class="btn alt" onclick="copiar('resDia')">📋 Copiar resumo</button>
+    </div>
+  </section>
+
+  <!-- ====== RELATÓRIO SEMANAL ====== -->
+  <section id="week" class="hide">
+    <div class="card">
+      <h2>📈 Gráficos (últimos 14 dias)</h2>
+      <canvas id="chartSint" width="700" height="220" style="width:100%;height:auto;background:var(--card2);border-radius:10px"></canvas>
+      <div class="note">Linha azul: tremor médio do dia • Linha amarela: rigidez média • Ponto vermelho embaixo: dia com queda.</div>
+      <canvas id="chartEstado" width="700" height="160" style="width:100%;height:auto;background:var(--card2);border-radius:10px;margin-top:12px"></canvas>
+      <div class="note">Barras: nº de registros em <b>OFF</b> por dia (quanto mais alto, mais tempo travado/lento).</div>
+    </div>
+    <div class="card">
+      <h2>🩺 Relatório médico (semanal)</h2>
+      <div class="note">Considera os últimos 7 dias com registro. Para levar à consulta.</div>
+      <div class="summary" id="resSem" style="margin-top:10px">Sem dados ainda.</div>
+      <button class="btn alt" onclick="resumoSemana()">🔄 Atualizar</button>
+      <button class="btn alt" onclick="copiar('resSem')">📋 Copiar relatório</button>
+    </div>
+    <div class="card">
+      <h2>❓ Perguntas sugeridas para o neurologista (DBS / distúrbios do movimento)</h2>
+      <div id="pontos">—</div>
+    </div>
+  </section>
+
+  <!-- ====== BACKUP ====== -->
+  <section id="backup" class="hide">
+    <div class="card">
+      <h2>💾 Backup e restauração</h2>
+      <p class="note">Os dados ficam salvos só neste aparelho. Faça backup com frequência.</p>
+      <button class="btn alt" onclick="exportJSON()">⬇️ Exportar backup completo (JSON)</button>
+      <button class="btn alt" onclick="exportCSV()">⬇️ Exportar registros (CSV)</button>
+      <h3>Importar backup (JSON)</h3>
+      <input type="file" id="fileJSON" accept="application/json,.json">
+      <button class="btn alt" onclick="importJSON()">⬆️ Importar e mesclar</button>
+      <div id="importMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>☁️ Nuvem (Google Sheets)</h2>
+      <p class="note">Sincroniza o histórico com uma planilha do Google: protege contra perder os dados e
+        deixa toda a família no mesmo histórico. Passo a passo no arquivo <b>COMO-CONFIGURAR-NUVEM</b>.</p>
+      <label>Endereço de sincronização (URL terminada em /exec)</label>
+      <input type="text" id="cloudUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      <label>Senha de sincronização (o mesmo TOKEN do script)</label>
+      <input type="text" id="cloudToken" placeholder="ex.: helio-2024-familia-x7q2">
+      <button class="btn alt sm" onclick="salvarCloud()" style="margin-top:10px">💾 Salvar conexão</button>
+      <button class="btn alt sm" onclick="syncNow(true)">🔄 Sincronizar agora</button>
+      <label style="margin-top:14px">Sincronizar automaticamente ao salvar um registro?</label>
+      <div class="seg" id="cloudAuto">
+        <button data-v="Não">Não</button><button data-v="Sim">Sim</button>
+      </div>
+      <div id="cloudStatus"></div>
+      <div class="note">Funciona offline: o registro é salvo no aparelho na hora e enviado à planilha quando houver internet.
+        Mantenha a URL e a senha em sigilo.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="color:var(--bad)">Zona de risco</h3>
+      <button class="btn alt" onclick="limpar()" style="border-color:var(--bad);color:var(--bad)">🗑️ Apagar todos os registros</button>
+    </div>
+  </section>
+
+  <div class="foot">
+    Dados salvos apenas neste aparelho (armazenamento local do navegador).<br>
+    Faça exportações regulares para não perder o histórico.
+  </div>
+</div>
+
+<script>
+const KEY='parkinson_dbs_registros_v3';
+const KEY_OLD='parkinson_dbs_registros_v2';
+const MKEY='parkinson_dbs_remedios_v3';
+const MKEY_OLD='parkinson_dbs_remedios_v2';
+const PKEY='parkinson_dbs_paciente_v3';
+/* camada de armazenamento segura: usa localStorage; se estiver bloqueado
+   (preview/sandbox, aba anônima), cai para memória para não quebrar o app */
+let memStore={};
+let lsOK=true;
+try{ const t='__t';localStorage.setItem(t,'1');localStorage.removeItem(t); }catch(e){ lsOK=false; }
+function lsGet(k){ try{ return lsOK?localStorage.getItem(k):(memStore[k]??null); }catch(e){ return memStore[k]??null; } }
+function lsSet(k,v){ try{ if(lsOK)localStorage.setItem(k,v); else memStore[k]=v; }catch(e){ memStore[k]=v; } }
+function lsDel(k){ try{ if(lsOK)localStorage.removeItem(k); else delete memStore[k]; }catch(e){ delete memStore[k]; } }
+/* migração automática v2 -> v3 (não perde dados antigos) */
+(function migrar(){
+  try{
+    if(lsGet(KEY_OLD)&&!lsGet(KEY)) lsSet(KEY,lsGet(KEY_OLD));
+    if(lsGet(MKEY_OLD)&&!lsGet(MKEY)) lsSet(MKEY,lsGet(MKEY_OLD));
+  }catch(e){}
+})();
+const get=()=>{try{return JSON.parse(lsGet(KEY)||'[]')}catch(e){return []}};
+const setAll=d=>lsSet(KEY,JSON.stringify(d));
+const getMeds=()=>{try{return JSON.parse(lsGet(MKEY)||'[]')}catch(e){return []}};
+const setMeds=d=>lsSet(MKEY,JSON.stringify(d));
+const getPaci=()=>{try{return JSON.parse(lsGet(PKEY)||'{}')}catch(e){return {}}};
+const sel={};
+const esc=s=>(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+function buildScale(id){
+  const el=document.getElementById(id);
+  for(let i=0;i<=10;i++){
+    const b=document.createElement('button');
+    b.textContent=i; b.dataset.v=i; b.onclick=()=>pick(id,i,b);
+    el.appendChild(b);
+  }
+}
+buildScale('tremor'); buildScale('rigidez');
+
+document.querySelectorAll('.seg').forEach(seg=>{
+  if(seg.classList.contains('scale'))return;
+  seg.querySelectorAll('button').forEach(b=>b.onclick=()=>pick(seg.id,b.dataset.v,b));
+});
+function pick(group,val,btn){
+  sel[group]=val;
+  const seg=document.getElementById(group);
+  seg.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+  btn.classList.add('on');
+  if(['tremor','rigidez'].includes(group)) seg.classList.toggle('high',Number(val)>=7);
+}
+
+(function(){
+  const n=new Date();
+  document.getElementById('data').value=n.toISOString().slice(0,10);
+  document.getElementById('hora').value=n.toTimeString().slice(0,5);
+  document.getElementById('diaSel').value=n.toISOString().slice(0,10);
+})();
+
+function tab(name){
+  ['simples','check','paci','meds','reg','day','week','backup'].forEach(s=>{
+    document.getElementById(s).classList.toggle('hide',s!==name);
+  });
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));
+  const map={simples:'tSimples',check:'tCheck',paci:'tPaci',meds:'tMeds',reg:'tReg',day:'tDay',week:'tWeek',backup:'tData'};
+  if(name==='simples')renderSimples();
+  document.getElementById(map[name]).classList.add('on');
+  if(name==='paci')loadPaciente();
+  if(name==='meds')renderMeds();
+  if(name==='reg')render();
+  if(name==='day')resumoDia();
+  if(name==='week'){resumoSemana();drawCharts();}
+}
+
+/* ---------- PACIENTE ---------- */
+const PCAMPOS=['pNome','pNasc','pIdade','pSexo','pAnoDBS','pDiag','pCID','pInicio','pAcomp','pDBSDesde','pHosp','pMed','pFab','pModelo','pTel','pObs'];
+function preencherPaciente(){
+  const v={
+    pNome:'Hélio Matos Cabral Junior',pIdade:'62',pSexo:'Masculino',
+    pDiag:'Doença de Parkinson',pCID:'G20',pInicio:'2014',pAcomp:'2019',
+    pAnoDBS:'2024',pDBSDesde:'junho/2024',
+    pHosp:'Complexo Hospitalar Universitário Professor Edgard Santos, C-HUPES/EBSERH, Salvador-BA',
+    pMed:'Dra. Roberta Borges Gomes Kauark',
+    pObs:'Doença de Parkinson, sintomas desde 2014, acompanhamento em neurologia/distúrbios do movimento desde 2019. Flutuações motoras, encurtamento do tempo de efeito da terapêutica, discinesias importantes, períodos de rigidez muscular, lentificação motora e congelamento da marcha nos períodos de decaimento do efeito medicamentoso. Em terapia de estimulação cerebral profunda em núcleos subtalâmicos bilaterais (STN) desde junho/2024.'
+  };
+  Object.entries(v).forEach(([id,val])=>{if(document.getElementById(id))document.getElementById(id).value=val;});
+  sel.pAlvo='STN';
+  document.getElementById('pAlvo').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v==='STN'));
+  document.getElementById('paciMsg').innerHTML='<div class="alert">📄 Dados do relatório preenchidos. Confira e clique em <b>Salvar</b>. Data de nascimento, fabricante e modelo não constam no relatório — preencha se souber.</div>';
+}
+function salvarPaciente(){
+  const p={};
+  PCAMPOS.forEach(id=>p[id]=document.getElementById(id).value.trim());
+  p.pAlvo=sel.pAlvo||'';
+  lsSet(PKEY,JSON.stringify(p));
+  document.getElementById('paciMsg').innerHTML='<div class="alert ok">✅ Dados do paciente salvos.</div>';
+  setTimeout(()=>document.getElementById('paciMsg').innerHTML='',6000);
+}
+function loadPaciente(){
+  const p=getPaci();
+  PCAMPOS.forEach(id=>{if(document.getElementById(id))document.getElementById(id).value=p[id]||'';});
+  if(p.pAlvo){
+    sel.pAlvo=p.pAlvo;
+    document.getElementById('pAlvo').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===p.pAlvo));
+  }
+}
+function idadePaciente(){
+  const p=getPaci();
+  if(p.pNasc){const d=new Date(p.pNasc);if(!isNaN(d))return Math.floor((Date.now()-d.getTime())/(365.25*24*3600*1000))+' anos';}
+  if(p.pIdade)return p.pIdade+' anos';
+  return '';
+}
+
+/* ---------- REMÉDIOS ---------- */
+let editMedIndex=-1;
+function addMed(){
+  const nome=document.getElementById('mNome').value.trim();
+  if(!nome){alert('Digite o nome do remédio.');return;}
+  const novo={nome,dose:document.getElementById('mDose').value.trim(),freq:document.getElementById('mFreq').value.trim(),horas:document.getElementById('mHoras').value.trim()};
+  const d=getMeds();
+  if(editMedIndex>=0&&d[editMedIndex]) d[editMedIndex]=novo;
+  else d.push(novo);
+  setMeds(d);
+  cancelEditMed();
+  renderMeds(); fillMedSelect();
+  if(typeof renderSimples==='function')renderSimples();
+  if(typeof autoSync==='function')autoSync();
+}
+function editMed(i){
+  const m=getMeds()[i];if(!m)return;
+  document.getElementById('mNome').value=m.nome||'';
+  document.getElementById('mDose').value=m.dose||'';
+  document.getElementById('mFreq').value=m.freq||'';
+  document.getElementById('mHoras').value=m.horas||'';
+  editMedIndex=i;
+  document.getElementById('btnAddMed').textContent='💾 Salvar alterações';
+  document.getElementById('btnCancelMed').style.display='block';
+  document.getElementById('mNome').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function cancelEditMed(){
+  editMedIndex=-1;
+  ['mNome','mDose','mFreq','mHoras'].forEach(id=>document.getElementById(id).value='');
+  const b=document.getElementById('btnAddMed');if(b)b.textContent='➕ Adicionar remédio';
+  const c=document.getElementById('btnCancelMed');if(c)c.style.display='none';
+}
+function addMedsRelatorio(){
+  const base=[
+    {nome:'Prolopa BD 100/25mg',dose:'1 comprimido',freq:'4 vezes ao dia',horas:'06:00, 10:00, 14:00, 18:00'},
+    {nome:'Prolopa HBS 100/25mg',dose:'1 comprimido',freq:'1 vez ao dia (noite)',horas:'22:00'},
+    {nome:'Pramipexol 0,50mg',dose:'0,50mg',freq:'3 vezes ao dia (8/8h)',horas:'06:00, 14:00, 18:00'},
+    {nome:'Amantadina/Mantidan 100mg',dose:'100mg',freq:'3 vezes ao dia',horas:'06:00, 14:00, 18:00'},
+    {nome:'Escitalopram 10mg',dose:'10mg',freq:'1 vez ao dia',horas:'06:00'},
+    {nome:'Clonazepam 0,5mg',dose:'1,5mg/dia (total)',freq:'1 vez ao dia (noite)',horas:'21:00'}
+  ];
+  const d=getMeds();
+  let add=0,upd=0;
+  base.forEach(m=>{
+    const ex=d.find(x=>x.nome.toLowerCase()===m.nome.toLowerCase());
+    if(ex){
+      // atualiza horários/dose/frequência se já existir (sem duplicar)
+      if(ex.horas!==m.horas||ex.dose!==m.dose||ex.freq!==m.freq){ex.horas=m.horas;ex.dose=m.dose;ex.freq=m.freq;upd++;}
+    } else {d.push(m);add++;}
+  });
+  setMeds(d); renderMeds(); fillMedSelect();
+  let msg=[];
+  if(add)msg.push(`${add} adicionada(s)`);
+  if(upd)msg.push(`${upd} atualizada(s) com os horários`);
+  alert((msg.length?msg.join(' e ')+'. ':'Já estavam cadastradas com estes horários. ')+
+    'Confira todos os horários com a receita médica antes de usar os lembretes.');
+}
+function delMed(i){
+  if(!confirm('Remover este remédio?'))return;
+  const d=getMeds();d.splice(i,1);setMeds(d);cancelEditMed();
+  renderMeds();fillMedSelect();
+  if(typeof renderSimples==='function')renderSimples();
+  if(typeof autoSync==='function')autoSync();
+}
+function renderMeds(){
+  const d=getMeds(); const el=document.getElementById('medList');
+  if(!d.length){el.innerHTML='<p class="note">Nenhum remédio cadastrado ainda.</p>';return;}
+  el.innerHTML=d.map((m,i)=>`<div class="medItem"><div class="info"><b>${esc(m.nome)}</b>
+    <small>Dose: ${esc(m.dose)||'—'} • Frequência: ${esc(m.freq)||'—'} • Horários: ${esc(m.horas)||'⚠️ a preencher'}</small></div>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <button class="x" style="background:#0b3a4d;color:#7dd3fc;border-color:#38bdf8" onclick="editMed(${i})">Editar</button>
+      <button class="x" onclick="delMed(${i})">Remover</button>
+    </div></div>`).join('');
+}
+function fillMedSelect(){
+  const d=getMeds(); const s=document.getElementById('remedioSel');
+  s.innerHTML='<option value="">— escolher / digitar manualmente —</option>'+
+    d.map((m,i)=>`<option value="${i}">${esc(m.nome)}${m.dose?' ('+esc(m.dose)+')':''}</option>`).join('');
+}
+function onMedSelect(){
+  const i=document.getElementById('remedioSel').value;
+  const hp=document.getElementById('horarioPrevisto');
+  if(i===''){hp.innerHTML='<option value="">— selecione o remédio acima —</option>';return;}
+  const m=getMeds()[i];
+  document.getElementById('remedio').value=m.nome;
+  document.getElementById('dose').value=m.dose||'';
+  const horas=parseHoras(m.horas);
+  hp.innerHTML='<option value="">— horário previsto —</option>'+horas.map(h=>`<option value="${h}">${h}</option>`).join('');
+  calcAtraso();
+}
+function fmtAtraso(dif){
+  if(dif>0)return '+'+dif+' min';
+  if(dif<0)return Math.abs(dif)+' min antes';
+  return 'no horário (0 min)';
+}
+function calcAtraso(){
+  const prev=document.getElementById('horarioPrevisto').value;
+  const real=document.getElementById('horaRem').value;
+  const out=document.getElementById('atrasoMin');
+  if(!prev||!real){out.value='';return;}
+  const [ph,pm]=prev.split(':').map(Number);
+  const [rh,rm]=real.split(':').map(Number);
+  let dif=(rh*60+rm)-(ph*60+pm);
+  out.value=fmtAtraso(dif);
+  // sugere status automaticamente (só se ainda não escolheu manualmente Esquecido/Parcial)
+  if(sel.statusDose!=='Esquecido'&&sel.statusDose!=='Parcial'){
+    autoSetSeg('statusDose', dif>10 ? 'Atrasado' : 'No horário');
+  }
+}
+function autoSetSeg(group,val){
+  sel[group]=val;
+  const seg=document.getElementById(group);
+  if(!seg)return;
+  seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===val));
+}
+
+/* ---------- SALVAR REGISTRO ---------- */
+function salvar(){
+  const prev=document.getElementById('horarioPrevisto').value;
+  const real=document.getElementById('horaRem').value;
+  let atrasoMin='';
+  if(prev&&real){
+    const [ph,pm]=prev.split(':').map(Number),[rh,rm]=real.split(':').map(Number);
+    atrasoMin=(rh*60+rm)-(ph*60+pm);
+  }
+  const r={
+    tipo:sel.tipo||'',
+    data:document.getElementById('data').value,
+    hora:document.getElementById('hora').value,
+    respondente:document.getElementById('respondente').value.trim(),
+    remedio:document.getElementById('remedio').value.trim(),
+    dose:document.getElementById('dose').value.trim(),
+    horarioPrevisto:prev,
+    horaRem:real,
+    atrasoMin:atrasoMin,
+    statusDose:sel.statusDose||'',
+    tomou:(sel.statusDose==='Esquecido')?'Não':(sel.statusDose==='Parcial')?'Parcial':(sel.statusDose?'Sim':''),
+    atraso:(typeof atrasoMin==='number'&&atrasoMin>10)?'Atraso':(sel.statusDose==='Atrasado'?'Atraso':'Sem atraso'),
+    tempoRem:sel.tempoRem||'',
+    tremor:sel.tremor??'',
+    tremorLado:sel.tremorLado||'',
+    rigidez:sel.rigidez??'',
+    rigidezLado:sel.rigidezLado||'',
+    marcha:sel.marcha||'',
+    marchaLado:sel.marchaLado||'',
+    fala:sel.fala||'',
+    equilibrio:sel.equilibrio||'',
+    engasgo:sel.engasgo||'',
+    sonolencia:sel.sonolencia||'',
+    dor:sel.dor||'',
+    dorOnde:document.getElementById('dorOnde').value.trim(),
+    travamento:sel.travamento||'',
+    queda:sel.queda||'',
+    video:sel.video||'',
+    comparacao:sel.comparacao||'',
+    estadoMotor:sel.estadoMotor||'',
+    estimulador:sel.estimulador||'',
+    programa:document.getElementById('programa').value.trim(),
+    bateria:sel.bateria||'',
+    alertaCtrl:sel.alertaCtrl||'',
+    mudouPrograma:sel.mudouPrograma||'',
+    nivelCtrl:document.getElementById('nivelCtrl').value.trim(),
+    observacao:document.getElementById('observacao').value.trim(),
+    ts:Date.now()
+  };
+  if(!r.data){alert('Preencha a data.');return;}
+  const d=get(); d.push(r); setAll(d);
+  let aviso='';
+  if(r.queda==='Queda'||r.queda==='Quase queda')
+    aviso+='<div class="alert danger">⚠️ Queda/quase queda registrada. Se houve batida na cabeça, ferimento, confusão ou perda de consciência, <b>procure atendimento médico imediatamente</b>.</div>';
+  if(r.engasgo==='Sim'||r.sonolencia==='Sim')
+    aviso+='<div class="alert">📌 Sintoma de atenção registrado (engasgo/sonolência-confusão). Anote para a consulta; se houver piora súbita ou falta de ar, procure atendimento.</div>';
+  if(r.alertaCtrl==='Sim'||r.bateria==='Baixa')
+    aviso+='<div class="alert">🔋 Alerta/bateria baixa anotado no controle do DBS. Registre o que apareceu na tela e leve ao médico — não altere a programação.</div>';
+  document.getElementById('saveMsg').innerHTML='<div class="alert ok">✅ Registro salvo!</div>'+aviso;
+  setTimeout(()=>document.getElementById('saveMsg').innerHTML='',9000);
+  if(typeof autoSync==='function')autoSync();
+}
+function novoCheckin(){
+  // limpa sintomas, dose, horário real, observações e seleções — mantém data e respondente
+  ['remedio','dose','horaRem','atrasoMin','programa','nivelCtrl','dorOnde','observacao'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('remedioSel').value='';
+  document.getElementById('horarioPrevisto').innerHTML='<option value="">— selecione o remédio acima —</option>';
+  document.getElementById('hora').value=new Date().toTimeString().slice(0,5);
+  // limpa seleções de segmentos, exceto nada a manter aqui
+  const manter=[];
+  Object.keys(sel).forEach(k=>{if(!manter.includes(k))delete sel[k];});
+  document.querySelectorAll('#check .seg button.on').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#check .seg.scale').forEach(s=>s.classList.remove('high'));
+  document.getElementById('saveMsg').innerHTML='<div class="alert ok">🆕 Formulário pronto para um novo check-in.</div>';
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>document.getElementById('saveMsg').innerHTML='',5000);
+}
+
+/* ---------- TABELA ---------- */
+function pillNum(v){
+  if(v==='')return '<span class="pill">—</span>';
+  const n=Number(v),c=n>=7?'b':n>=4?'w':'g';
+  return `<span class="pill ${c}">${v}</span>`;
+}
+const COLS=['data','hora','tipo','respondente','remedio','dose','horarioPrevisto','horaRem','atrasoMin','statusDose','tempoRem','tremor','tremorLado','rigidez','rigidezLado','marcha','marchaLado','fala','equilibrio','engasgo','sonolencia','dor','dorOnde','travamento','queda','video','comparacao','estadoMotor','estimulador','programa','bateria','alertaCtrl','mudouPrograma','nivelCtrl','observacao'];
+const HEAD=['Data','Hora','Tipo','Respondente','Remédio','Dose','HorárioPrevisto','HoraReal','AtrasoMin','StatusDose','TempoRemédio','Tremor_0_10','TremorLado','Rigidez_0_10','RigidezLado','Marcha','MarchaLado','Fala','Equilíbrio','Engasgo','Sonolência','Dor','DorOnde','Travamento','Queda','Vídeo','Comparação','EstadoMotor','Estimulador','Programa','BateriaDBS','AlertaControle','MudançaPrograma','NívelControle','Observação'];
+function render(){
+  const d=get().slice().sort((a,b)=>b.ts-a.ts);
+  if(!d.length){document.getElementById('tabela').innerHTML='<p class="note">Nenhum registro ainda.</p>';return;}
+  let h='<table><tr>'+HEAD.map(x=>`<th>${x}</th>`).join('')+'</tr>';
+  d.forEach(r=>{
+    h+='<tr>'+COLS.map(c=>{
+      if(c==='tremor'||c==='rigidez')return `<td>${pillNum(r[c])}</td>`;
+      return `<td>${esc(String(r[c]??''))}</td>`;
+    }).join('')+'</tr>';
+  });
+  document.getElementById('tabela').innerHTML=h+'</table>';
+}
+
+/* ---------- FALTANTES ---------- */
+function faltantes(r){
+  const f=[];
+  if(!r.tipo)f.push('tipo de check-in');
+  if(!r.respondente)f.push('quem respondeu');
+  if(!r.statusDose)f.push('status da dose');
+  if(r.tremor==='')f.push('tremor (0–10)');
+  if(r.rigidez==='')f.push('rigidez (0–10)');
+  if(!r.marcha)f.push('marcha');
+  if(!r.travamento)f.push('travamento');
+  if(!r.queda)f.push('queda/quase queda');
+  if(!r.estimulador)f.push('se o estimulador está ligado');
+  return f;
+}
+
+/* ---------- HELPERS ---------- */
+const nums=a=>a.filter(x=>x!==''&&x!=null).map(Number);
+const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'—';
+const uniq=a=>[...new Set(a.filter(Boolean))];
+function ladoPredom(regs,campo){
+  const c={Direito:0,Esquerdo:0,Ambos:0};
+  regs.forEach(r=>{if(c[r[campo]]!==undefined)c[r[campo]]++;});
+  const tot=c.Direito+c.Esquerdo+c.Ambos;
+  if(!tot)return '—';
+  const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];
+  return `${top[0]} (${top[1]}/${tot})`;
+}
+function ladoPredomMarcha(regs){
+  const c={'Perna direita':0,'Perna esquerda':0,'Ambas':0,'Não se aplica':0};
+  regs.forEach(r=>{if(c[r.marchaLado]!==undefined)c[r.marchaLado]++;});
+  const rel=c['Perna direita']+c['Perna esquerda']+c['Ambas'];
+  if(!rel)return c['Não se aplica']?'Não se aplica':'—';
+  const top=Object.entries({'Perna direita':c['Perna direita'],'Perna esquerda':c['Perna esquerda'],'Ambas':c['Ambas']})
+    .sort((a,b)=>b[1]-a[1])[0];
+  return `${top[0]} (${top[1]}/${rel})`;
+}
+
+/* ---------- RESUMO DIA ---------- */
+function resumoDia(){
+  const dia=document.getElementById('diaSel').value;
+  const regs=get().filter(r=>r.data===dia).sort((a,b)=>a.ts-b.ts);
+  const alertEl=document.getElementById('alertDia');
+  if(!regs.length){document.getElementById('resDia').textContent='Nenhum registro neste dia.';alertEl.innerHTML='';return;}
+  const trem=nums(regs.map(r=>r.tremor)),rig=nums(regs.map(r=>r.rigidez));
+  const quedas=regs.filter(r=>r.queda==='Queda').length;
+  const quase=regs.filter(r=>r.queda==='Quase queda').length;
+  const trav=regs.filter(r=>r.travamento==='Sim').length;
+  const esq=regs.filter(r=>r.statusDose==='Esquecido').length;
+  const atrasadas=regs.filter(r=>r.statusDose==='Atrasado').length;
+  const parc=regs.filter(r=>r.statusDose==='Parcial').length;
+  const videos=regs.filter(r=>r.video==='Sim').length;
+
+  let t=`RESUMO DO DIA — ${dia}\n`;
+  t+=`Registros: ${regs.length}\n`;
+  t+=`Tremor (0–10): média ${avg(trem)}${trem.length?` | pico ${Math.max(...trem)}`:''} | lado: ${ladoPredom(regs,'tremorLado')}\n`;
+  t+=`Rigidez (0–10): média ${avg(rig)}${rig.length?` | pico ${Math.max(...rig)}`:''} | lado: ${ladoPredom(regs,'rigidezLado')}\n`;
+  t+=`Travamentos: ${trav} | Quase quedas: ${quase} | Quedas: ${quedas}\n`;
+  t+=`Doses: esquecidas ${esq} | atrasadas ${atrasadas} | parciais ${parc}\n`;
+  const sint=[];
+  if(regs.some(r=>r.fala&&r.fala!=='Normal'))sint.push('fala alterada');
+  if(regs.some(r=>r.equilibrio&&r.equilibrio!=='Bom'))sint.push('equilíbrio instável');
+  if(regs.some(r=>r.engasgo==='Sim'))sint.push('engasgo');
+  if(regs.some(r=>r.sonolencia==='Sim'))sint.push('sonolência/confusão');
+  if(regs.some(r=>r.dor==='Sim'))sint.push('dor');
+  if(sint.length)t+=`Outros sintomas: ${sint.join(', ')}\n`;
+  if(videos)t+=`Vídeos gravados: ${videos}\n`;
+  const comp=uniq(regs.map(r=>r.comparacao)).join(', ');
+  if(comp)t+=`Comparado com ontem: ${comp}\n`;
+  const dbs=uniq(regs.map(r=>r.estimulador)).join(', ');
+  const prog=uniq(regs.map(r=>r.programa)).join(', ');
+  t+=`Estimulador: ${dbs||'—'}${prog?` | Programa: ${prog}`:''}\n`;
+  const obs=regs.filter(r=>r.observacao).map(r=>`  • [${r.tipo||r.hora}] ${r.observacao}`).join('\n');
+  if(obs)t+=`Observações:\n${obs}\n`;
+  document.getElementById('resDia').textContent=t;
+
+  let a='';
+  const falt=faltantes(regs[regs.length-1]);
+  if(falt.length)a+=`<div class="alert">📌 Faltou no último registro: ${falt.join(', ')}.</div>`;
+  if(quedas)a+=`<div class="alert danger">🚑 Houve queda neste dia. Em caso de ferimento, batida na cabeça, confusão ou perda de consciência, procure atendimento imediatamente.</div>`;
+  alertEl.innerHTML=a;
+}
+
+/* ---------- RELATÓRIO SEMANAL ---------- */
+function periodo(r){
+  if(r.tipo&&['Manhã','Tarde','Noite'].includes(r.tipo))return r.tipo;
+  const h=parseInt((r.hora||'').slice(0,2),10);
+  if(isNaN(h))return 'Indefinido';
+  if(h<12)return 'Manhã'; if(h<18)return 'Tarde'; return 'Noite';
+}
+function resumoSemana(){
+  const all=get();
+  if(!all.length){document.getElementById('resSem').textContent='Sem dados ainda.';document.getElementById('pontos').textContent='—';return;}
+  const dias=uniq(all.map(r=>r.data)).sort().slice(-7);
+  const regs=all.filter(r=>dias.includes(r.data));
+  const p=getPaci();
+  const trem=nums(regs.map(r=>r.tremor)),rig=nums(regs.map(r=>r.rigidez));
+  const quedas=regs.filter(r=>r.queda==='Queda').length;
+  const quase=regs.filter(r=>r.queda==='Quase queda').length;
+  const trav=regs.filter(r=>r.travamento==='Sim').length;
+  const videos=regs.filter(r=>r.video==='Sim');
+
+  // medicações com mais atrasos
+  const medStats={};
+  regs.forEach(r=>{
+    if(!r.remedio)return;
+    const m=medStats[r.remedio]||(medStats[r.remedio]={atrasos:0,esquecidas:0,parciais:0,somaAtraso:0,nAtraso:0});
+    if(r.statusDose==='Atrasado')m.atrasos++;
+    if(r.statusDose==='Esquecido')m.esquecidas++;
+    if(r.statusDose==='Parcial')m.parciais++;
+    if(typeof r.atrasoMin==='number'&&r.atrasoMin>0){m.somaAtraso+=r.atrasoMin;m.nAtraso++;}
+  });
+  const medRank=Object.entries(medStats)
+    .map(([nome,s])=>({nome,...s,total:s.atrasos+s.esquecidas+s.parciais}))
+    .filter(m=>m.total>0).sort((a,b)=>b.total-a.total);
+
+  // relação horário do remédio x sintomas (tempoRem)
+  const porTempo={};
+  regs.forEach(r=>{
+    if(!r.tempoRem||r.tempoRem==='Não se aplica')return;
+    const o=porTempo[r.tempoRem]||(porTempo[r.tempoRem]={t:[],r:[],n:0});
+    o.n++; if(r.tremor!=='')o.t.push(+r.tremor); if(r.rigidez!=='')o.r.push(+r.rigidez);
+  });
+
+  // períodos do dia
+  const periodos={'Manhã':{t:[],r:[],ev:0,n:0},'Tarde':{t:[],r:[],ev:0,n:0},'Noite':{t:[],r:[],ev:0,n:0}};
+  regs.forEach(r=>{
+    const k=periodo(r); if(!periodos[k])return; const o=periodos[k]; o.n++;
+    if(r.tremor!=='')o.t.push(+r.tremor); if(r.rigidez!=='')o.r.push(+r.rigidez);
+    if(r.travamento==='Sim')o.ev++; if(r.queda==='Queda'||r.queda==='Quase queda')o.ev++;
+  });
+  const carga=o=>{const ta=o.t.length?o.t.reduce((a,b)=>a+b,0)/o.t.length:0;const ra=o.r.length?o.r.reduce((a,b)=>a+b,0)/o.r.length:0;return ta+ra+o.ev*2;};
+  const piores=Object.entries(periodos).filter(([k,o])=>o.n>0).sort((a,b)=>carga(b[1])-carga(a[1]));
+
+  let t='RELATÓRIO MÉDICO — ACOMPANHAMENTO PARKINSON/DBS\n';
+  t+='═══════════════════════════════════════\n';
+  t+='— PACIENTE —\n';
+  t+=`Nome: ${p.pNome||'—'}${idadePaciente()?'  ('+idadePaciente()+')':''}${p.pSexo?' | Sexo: '+p.pSexo:''}\n`;
+  t+=`Diagnóstico: ${p.pDiag||'—'}${p.pCID?' | CID-10: '+p.pCID:''}\n`;
+  t+=`Início dos sintomas: ${p.pInicio||'—'} | Acompanhamento desde: ${p.pAcomp||'—'}\n`;
+  t+=`DBS desde: ${p.pDBSDesde||p.pAnoDBS||'—'} | Alvo: ${p.pAlvo||'—'}${p.pAlvo==='STN'?' (núcleos subtalâmicos bilaterais)':''}\n`;
+  t+=`Estimulador: ${p.pFab||'fabricante não informado'} ${p.pModelo||''}\n`;
+  t+=`Hospital/serviço: ${p.pHosp||'—'}\n`;
+  t+=`Médica(o) responsável: ${p.pMed||'—'} | Tel. emergência: ${p.pTel||'—'}\n`;
+  if(p.pObs)t+=`Obs. clínicas: ${p.pObs}\n`;
+  // medicações cadastradas
+  const meds=getMeds();
+  if(meds.length){
+    t+='\n— MEDICAÇÕES CADASTRADAS —\n';
+    meds.forEach(m=>{t+=`• ${m.nome}${m.dose?' — '+m.dose:''}${m.freq?' — '+m.freq:''}${m.horas?' — horários: '+m.horas:' — horários a confirmar'}\n`;});
+  }
+  t+='\n— PERÍODO ANALISADO —\n';
+  t+=`${dias[0]} a ${dias[dias.length-1]} (${dias.length} dia(s), ${regs.length} registro(s))\n`;
+
+  t+='\n— SINTOMAS MOTORES —\n';
+  t+=`Tremor:  média ${avg(trem)}${trem.length?` | pico ${Math.max(...trem)}`:''}\n`;
+  t+=`Rigidez: média ${avg(rig)}${rig.length?` | pico ${Math.max(...rig)}`:''}\n`;
+  t+=`Travamentos: ${trav}\n`;
+
+  t+='\n— LADO PREDOMINANTE —\n';
+  t+=`Tremor:  ${ladoPredom(regs,'tremorLado')}\n`;
+  t+=`Rigidez: ${ladoPredom(regs,'rigidezLado')}\n`;
+  t+=`Marcha:  ${ladoPredomMarcha(regs)}\n`;
+
+  t+='\n— ESTADO MOTOR (ON/OFF) —\n';
+  const comEstado=regs.filter(r=>r.estadoMotor);
+  if(comEstado.length){
+    const cont={'OFF':0,'ON sem discinesia':0,'ON com discinesia leve':0,'ON com discinesia incômoda':0,'Dormindo':0};
+    comEstado.forEach(r=>{const e=r.estadoMotor;if(e.indexOf('OFF')===0)cont['OFF']++;else if(cont[e]!==undefined)cont[e]++;});
+    const tot=comEstado.length;
+    const pct=v=>Math.round(v/tot*100);
+    const discTot=cont['ON com discinesia leve']+cont['ON com discinesia incômoda'];
+    t+=`Registros com estado: ${tot}\n`;
+    t+=`OFF (travado/lento): ${cont['OFF']} (${pct(cont['OFF'])}%)\n`;
+    t+=`ON sem discinesia: ${cont['ON sem discinesia']} (${pct(cont['ON sem discinesia'])}%)\n`;
+    t+=`ON com discinesia: ${discTot} (${pct(discTot)}%) — leve ${cont['ON com discinesia leve']}, incômoda ${cont['ON com discinesia incômoda']}\n`;
+    if(cont['Dormindo'])t+=`Dormindo: ${cont['Dormindo']}\n`;
+  } else t+='Sem registros de estado motor. Use o "Estado motor (ON/OFF)" nos check-ins.\n';
+
+  t+='\n— OUTROS SINTOMAS —\n';
+  t+=`Fala alterada: ${regs.filter(r=>r.fala&&r.fala!=='Normal').length} reg.\n`;
+  t+=`Equilíbrio instável: ${regs.filter(r=>r.equilibrio&&r.equilibrio!=='Bom').length} reg.\n`;
+  t+=`Engasgo: ${regs.filter(r=>r.engasgo==='Sim').length} | Sonolência/confusão: ${regs.filter(r=>r.sonolencia==='Sim').length} | Dor: ${regs.filter(r=>r.dor==='Sim').length}\n`;
+
+  t+='\n— ADESÃO / ATRASOS DE MEDICAÇÃO —\n';
+  if(medRank.length){
+    medRank.forEach(m=>{
+      const med=m.nAtraso?` | atraso médio ${Math.round(m.somaAtraso/m.nAtraso)} min`:'';
+      t+=`${m.nome}: atrasadas ${m.atrasos}, esquecidas ${m.esquecidas}, parciais ${m.parciais}${med}\n`;
+    });
+    t+=`→ Medicação com mais ocorrências: ${medRank[0].nome}\n`;
+  } else t+='Sem atrasos/falhas registrados.\n';
+
+  t+='\n— RELAÇÃO HORÁRIO DO REMÉDIO x SINTOMAS —\n';
+  const ordem=['Antes','30 min depois','1h depois','2h depois','Fim de dose'];
+  const linhasTempo=ordem.filter(k=>porTempo[k]).map(k=>{
+    const o=porTempo[k];
+    return `${k}: tremor ${o.t.length?(o.t.reduce((a,b)=>a+b,0)/o.t.length).toFixed(1):'—'} | rigidez ${o.r.length?(o.r.reduce((a,b)=>a+b,0)/o.r.length).toFixed(1):'—'} (${o.n} reg.)`;
+  });
+  t+=linhasTempo.length?linhasTempo.join('\n')+'\n':'Dados insuficientes (preencha "tempo em relação ao remédio").\n';
+
+  t+='\n— PERÍODOS DO DIA COM MAIS SINTOMAS —\n';
+  if(piores.length){
+    piores.forEach(([k,o])=>{
+      const ta=o.t.length?(o.t.reduce((a,b)=>a+b,0)/o.t.length).toFixed(1):'—';
+      const ra=o.r.length?(o.r.reduce((a,b)=>a+b,0)/o.r.length).toFixed(1):'—';
+      t+=`${k}: tremor ${ta} | rigidez ${ra} | eventos ${o.ev}\n`;
+    });
+    t+=`→ Período mais crítico: ${piores[0][0]}\n`;
+  } else t+='—\n';
+
+  t+='\n— FIM DE DOSE (decaimento do efeito) —\n';
+  const fd=regs.filter(r=>r.tempoRem==='Fim de dose');
+  if(fd.length){
+    const fdT=nums(fd.map(r=>r.tremor)),fdR=nums(fd.map(r=>r.rigidez));
+    const fdTrav=fd.filter(r=>r.travamento==='Sim').length;
+    const fdCong=fd.filter(r=>['Arrastando','Passos curtos','Precisa de apoio','Não anda'].includes(r.marcha)).length;
+    const fdQ=fd.filter(r=>r.queda==='Queda').length,fdQQ=fd.filter(r=>r.queda==='Quase queda').length;
+    t+=`Registros em fim de dose: ${fd.length}\n`;
+    t+=`Tremor médio: ${avg(fdT)} | Rigidez média: ${avg(fdR)}\n`;
+    t+=`Travamentos (freezing): ${fdTrav} | Marcha ruim/congelamento: ${fdCong}\n`;
+    t+=`Quedas: ${fdQ} | Quase quedas: ${fdQQ}\n`;
+    t+='→ O relatório médico cita congelamento da marcha no decaimento do efeito; estes dados ajudam a caracterizar.\n';
+  } else t+='Nenhum registro marcado como "Fim de dose". Use esse marcador quando o efeito do remédio estiver acabando.\n';
+
+  t+='\n— ESTIMULADOR (DBS) —\n';
+  const batBaixa=regs.filter(r=>r.bateria==='Baixa').length;
+  const alertas2=regs.filter(r=>r.alertaCtrl==='Sim');
+  const mudou=regs.filter(r=>r.mudouPrograma==='Sim');
+  t+=`Bateria baixa relatada: ${batBaixa} registro(s)\n`;
+  t+=`Alerta no controle: ${alertas2.length} registro(s)`+(alertas2.length?` (${uniq(alertas2.map(r=>r.data)).join(', ')})`:'')+'\n';
+  t+=`Dias com mudança de programa: ${mudou.length?uniq(mudou.map(r=>r.data)).join(', '):'nenhum relatado'}\n`;
+  const niveis=uniq(regs.map(r=>r.nivelCtrl)).filter(Boolean);
+  if(niveis.length)t+=`Níveis anotados no controle: ${niveis.join(', ')}\n`;
+  const progs=uniq(regs.map(r=>r.programa)).filter(Boolean);
+  if(progs.length)t+=`Programas observados: ${progs.join(', ')}\n`;
+
+  t+='\n— QUEDAS / EPISÓDIOS —\n';
+  t+=`Quedas: ${quedas} | Quase quedas: ${quase}\n`;
+  t+=`Episódios com vídeo: ${videos.length}`+(videos.length?` (${uniq(videos.map(r=>r.data)).join(', ')})`:'')+'\n';
+
+  // sintomas de alerta
+  const alertas=[];
+  if(quedas)alertas.push(`${quedas} queda(s)`);
+  if(regs.some(r=>r.engasgo==='Sim'))alertas.push('engasgo');
+  if(regs.some(r=>r.sonolencia==='Sim'))alertas.push('sonolência/confusão');
+  if(regs.some(r=>r.equilibrio==='Muito instável'))alertas.push('equilíbrio muito instável');
+  if(trem.length&&Math.max(...trem)>=7)alertas.push('picos de tremor altos');
+  if(rig.length&&Math.max(...rig)>=7)alertas.push('picos de rigidez altos');
+  t+='\n— SINTOMAS DE ALERTA NA SEMANA —\n';
+  t+=(alertas.length?alertas.join(', '):'Nenhum sintoma de alerta destacado')+'\n';
+
+  // observações importantes
+  const chave=/qued|trava|dor|confus|piora|desmai|ar |peito|emerg|hospital|tont|engasg/i;
+  const impObs=regs.filter(r=>r.observacao&&(chave.test(r.observacao)||r.queda==='Queda'||r.comparacao==='Pior'))
+    .map(r=>`  • ${r.data} [${r.tipo||r.hora}] ${r.observacao}`);
+  if(impObs.length)t+='\n— OBSERVAÇÕES IMPORTANTES —\n'+impObs.join('\n')+'\n';
+
+  t+='\n═══════════════════════════════════════\n';
+  t+='Documento de acompanhamento gerado pela família/cuidador.\n';
+  t+='NÃO substitui avaliação médica. Nenhuma mudança de medicação\n';
+  t+='ou de programação do DBS deve ser feita sem orientação médica.\n';
+  document.getElementById('resSem').textContent=t;
+
+  // perguntas para o neurologista
+  const q=[];
+  if(piores.length)q.push(`Os sintomas concentram-se mais no período da <b>${piores[0][0]}</b> — isso sugere ajuste de horário da medicação ou da estimulação?`);
+  if(linhasTempo.length)q.push(`Observamos variação dos sintomas conforme o tempo após o remédio (ex.: "fim de dose"). Há indício de wearing-off a investigar?`);
+  if(medRank.length)q.push(`Houve atrasos/esquecimentos com <b>${medRank[0].nome}</b>. Como minimizar o impacto e qual a janela segura de horário?`);
+  const ladoT=ladoPredom(regs,'tremorLado');
+  if(ladoT!=='—'&&!ladoT.startsWith('Ambos'))q.push(`Os sintomas predominam à <b>${ladoT.split(' ')[0].toLowerCase()}</b>. Isso é compatível com o alvo do DBS (${p.pAlvo||'—'})?`);
+  if(quedas||quase)q.push(`Tivemos ${quedas} queda(s) e ${quase} quase queda(s) — há conduta para reduzir risco de queda?`);
+  if(regs.some(r=>r.fala&&r.fala!=='Normal'))q.push(`Notamos alteração de fala — pode ter relação com a estimulação ou exige fonoaudiologia?`);
+  if(regs.some(r=>r.engasgo==='Sim'))q.push(`Houve engasgo — é necessária avaliação de deglutição?`);
+  if(videos.length)q.push(`Gravamos vídeo(s) de episódio(s) — podemos mostrar na consulta para ajudar a caracterizar?`);
+  q.push(`Os dados deste período indicam necessidade de reavaliar a programação do DBS ou a medicação? <i>(decisão exclusivamente médica)</i>`);
+  document.getElementById('pontos').innerHTML='<ul>'+q.map(x=>`<li>${x}</li>`).join('')+'</ul>';
+}
+
+/* ---------- COPIAR / EXPORT / IMPORT ---------- */
+function copiar(id){
+  const txt=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(txt).then(()=>alert('Copiado!'),()=>{
+    const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);
+    ta.select();document.execCommand('copy');ta.remove();alert('Copiado!');
+  });
+}
+function download(name,content,type){
+  const blob=new Blob([content],{type});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();
+}
+function exportCSV(){
+  const d=get();
+  if(!d.length){alert('Nada para exportar.');return;}
+  const q=s=>`"${String(s??'').replace(/"/g,'""')}"`;
+  let csv='﻿'+HEAD.map(q).join(';')+'\n';
+  d.slice().sort((a,b)=>a.ts-b.ts).forEach(r=>csv+=COLS.map(c=>q(r[c])).join(';')+'\n');
+  download('acompanhamento_parkinson_'+new Date().toISOString().slice(0,10)+'.csv',csv,'text/csv;charset=utf-8');
+}
+function exportJSON(){
+  const backup={app:'parkinson-dbs',versao:'3.1',exportadoEm:new Date().toISOString(),
+    paciente:getPaci(),remedios:getMeds(),registros:get()};
+  download('backup_parkinson_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(backup,null,2),'application/json');
+}
+function importJSON(){
+  const f=document.getElementById('fileJSON').files[0];
+  const msg=document.getElementById('importMsg');
+  if(!f){msg.innerHTML='<div class="alert">Escolha um arquivo .json primeiro.</div>';return;}
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const b=JSON.parse(e.target.result);
+      const regs=b.registros||[],meds=b.remedios||[];
+      if(!Array.isArray(regs))throw new Error('formato inválido');
+      const cur=get(),tss=new Set(cur.map(r=>r.ts));
+      let add=0; regs.forEach(r=>{if(!tss.has(r.ts)){cur.push(r);add++;}});
+      setAll(cur);
+      if(Array.isArray(meds)){
+        const cm=getMeds(),nomes=new Set(cm.map(m=>m.nome.toLowerCase()));
+        meds.forEach(m=>{if(m.nome&&!nomes.has(m.nome.toLowerCase()))cm.push(m);});
+        setMeds(cm);
+      }
+      if(b.paciente&&Object.keys(b.paciente).length&&!Object.keys(getPaci()).length)
+        lsSet(PKEY,JSON.stringify(b.paciente));
+      fillMedSelect();
+      msg.innerHTML=`<div class="alert ok">✅ Importado: ${add} novo(s) registro(s) mesclado(s).</div>`;
+    }catch(err){msg.innerHTML='<div class="alert danger">❌ Arquivo inválido: '+esc(err.message)+'</div>';}
+  };
+  rd.readAsText(f);
+}
+function limpar(){
+  if(confirm('Apagar TODOS os registros deste aparelho? Faça um backup antes. Esta ação não pode ser desfeita.')){
+    if(confirm('Tem certeza mesmo? Todos os registros serão perdidos.')){setAll([]);render();alert('Registros apagados.');}
+  }
+}
+
+/* ---------- LEMBRETES ---------- */
+const LKEY='parkinson_dbs_lembrete_on_v2';
+const FKEY='parkinson_dbs_lembrete_fired_v2';
+let audioCtx=null;
+function setLembreteSeg(){
+  const v=lsGet(LKEY)==='Sim'?'Sim':'Não';
+  document.getElementById('lembreteOn').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+}
+document.getElementById('lembreteOn').querySelectorAll('button').forEach(b=>{
+  b.onclick=()=>{
+    lsSet(LKEY,b.dataset.v);setLembreteSeg();
+    if(b.dataset.v==='Sim'){pedirPermissao();statusLembrete('Lembretes ligados. Mantenha o app aberto.','ok');}
+    else statusLembrete('Lembretes desligados.','');
+  };
+});
+function statusLembrete(msg,cls){document.getElementById('lembreteStatus').innerHTML=msg?`<div class="alert ${cls}">${msg}</div>`:'';}
+function pedirPermissao(){
+  if(!('Notification'in window)){statusLembrete('Este navegador não suporta notificações. O aviso aparecerá só na tela.','');return;}
+  Notification.requestPermission().then(p=>{
+    statusLembrete(p==='granted'?'✅ Notificações permitidas.':'⚠️ Notificações bloqueadas — o aviso aparecerá só na tela do app.',p==='granted'?'ok':'');
+  });
+}
+function beep(){
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    [0,0.5,1].forEach(t=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.connect(g);g.connect(audioCtx.destination);o.frequency.value=880;
+      g.gain.setValueAtTime(0.001,audioCtx.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(0.4,audioCtx.currentTime+t+0.05);
+      g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+t+0.4);
+      o.start(audioCtx.currentTime+t);o.stop(audioCtx.currentTime+t+0.4);
+    });
+  }catch(e){}
+}
+function dispararLembrete(texto){
+  beep();
+  if(('Notification'in window)&&Notification.permission==='granted'){try{new Notification('💊 Hora do remédio',{body:texto});}catch(e){}}
+  if(lsGet(WAON)==='Sim')enviarWhats('💊 Hora do remédio: '+texto);
+  let bar=document.getElementById('lembreteBar');
+  if(!bar){
+    bar=document.createElement('div');bar.id='lembreteBar';
+    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99;background:#7c2d12;color:#fff;padding:14px 16px;font-size:16px;text-align:center;border-top:2px solid #fbbf24';
+    document.body.appendChild(bar);
+  }
+  bar.innerHTML=`💊 <b>${esc(texto)}</b> &nbsp; <button onclick="this.parentNode.remove()" style="background:#fff;color:#7c2d12;border:none;border-radius:8px;padding:6px 12px;font-weight:700;cursor:pointer">OK, tomei</button>`;
+}
+function testarLembrete(){dispararLembrete('Teste de lembrete — está funcionando!');}
+function parseHoras(s){
+  return (s||'').split(/[,;\s]+/).map(x=>x.trim()).filter(x=>/^\d{1,2}:\d{2}$/.test(x))
+    .map(x=>{const[h,m]=x.split(':');return `${String(+h).padStart(2,'0')}:${m}`;});
+}
+function checarLembretes(){
+  if(lsGet(LKEY)!=='Sim')return;
+  const now=new Date(),hhmm=now.toTimeString().slice(0,5),hoje=now.toISOString().slice(0,10);
+  let fired;try{fired=JSON.parse(lsGet(FKEY)||'{}')}catch(e){fired={}}
+  if(fired._dia!==hoje)fired={_dia:hoje};
+  getMeds().forEach(m=>parseHoras(m.horas).forEach(h=>{
+    const k=h+'|'+m.nome;
+    if(h===hhmm&&!fired[k]){fired[k]=true;dispararLembrete(`${m.nome}${m.dose?' — '+m.dose:''} (previsto ${h})`);}
+  }));
+  lsSet(FKEY,JSON.stringify(fired));
+}
+setInterval(checarLembretes,20000);
+function exportICS(){
+  const meds=getMeds(),linhas=[];
+  meds.forEach(m=>parseHoras(m.horas).forEach(h=>linhas.push({m,h})));
+  if(!linhas.length){alert('Cadastre remédios com horários previstos primeiro (ex.: 06:00, 12:00).');return;}
+  const ymd=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//AcompanhamentoParkinson//PT-BR//EN\r\nCALSCALE:GREGORIAN\r\n';
+  linhas.forEach(({m,h},i)=>{
+    const [hh,mm]=h.split(':');
+    ics+='BEGIN:VEVENT\r\n'+`UID:parkinson-${i}-${Date.now()}@local\r\n`+`DTSTART:${ymd}T${hh}${mm}00\r\n`+
+      'DURATION:PT5M\r\nRRULE:FREQ=DAILY\r\n'+`SUMMARY:💊 Remédio: ${m.nome}${m.dose?' ('+m.dose+')':''}\r\n`+
+      'DESCRIPTION:Lembrete de remédio (Acompanhamento Parkinson). Valide horários com o médico.\r\n'+
+      'BEGIN:VALARM\r\nACTION:DISPLAY\r\nTRIGGER:PT0M\r\nDESCRIPTION:Hora do remédio\r\nEND:VALARM\r\nEND:VEVENT\r\n';
+  });
+  ics+='END:VCALENDAR\r\n';
+  download('lembretes_remedios.ics',ics,'text/calendar;charset=utf-8');
+}
+
+/* ---------- WHATSAPP (CallMeBot) ---------- */
+const WANUM='parkinson_dbs_wa_num_v2',WAKEY='parkinson_dbs_wa_key_v2',WAON='parkinson_dbs_wa_on_v2';
+function waStatus(msg,cls){document.getElementById('waStatus').innerHTML=msg?`<div class="alert ${cls}">${msg}</div>`:'';}
+function setWaSeg(){
+  const v=lsGet(WAON)==='Sim'?'Sim':'Não';
+  document.getElementById('waOn').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+}
+document.getElementById('waOn').querySelectorAll('button').forEach(b=>{
+  b.onclick=()=>{lsSet(WAON,b.dataset.v);setWaSeg();
+    if(b.dataset.v==='Sim'&&!lsGet(WAKEY))waStatus('⚠️ Configure número e API key primeiro.','');};
+});
+function salvarWhats(){
+  const num=document.getElementById('waNum').value.replace(/\D/g,''),key=document.getElementById('waKey').value.trim();
+  if(!num||!key){waStatus('Preencha número e API key.','');return;}
+  lsSet(WANUM,num);lsSet(WAKEY,key);waStatus('✅ Configuração salva.','ok');
+}
+function waURL(texto){
+  const num=lsGet(WANUM),key=lsGet(WAKEY);
+  if(!num||!key)return null;
+  return `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(num)}&text=${encodeURIComponent(texto)}&apikey=${encodeURIComponent(key)}`;
+}
+function enviarWhats(texto){const url=waURL(texto);if(url)fetch(url,{mode:'no-cors'}).catch(()=>{});}
+function testarWhats(){
+  salvarWhats();
+  if(!waURL('x')){waStatus('Configure número e API key primeiro.','');return;}
+  enviarWhats('✅ Teste do Acompanhamento Parkinson — WhatsApp configurado!');
+  waStatus('Mensagem de teste enviada. Verifique seu WhatsApp em alguns segundos. Se não chegar, confira o número e a API key.','ok');
+}
+function gerarLinks(){
+  const num=lsGet(WANUM),key=lsGet(WAKEY),el=document.getElementById('waLinks');
+  if(!num||!key){el.innerHTML='<div class="alert">Salve o número e a API key primeiro.</div>';return;}
+  const itens=[];
+  getMeds().forEach(m=>parseHoras(m.horas).forEach(h=>itens.push({m,h})));
+  if(!itens.length){el.innerHTML='<div class="alert">Cadastre remédios com horários previstos primeiro.</div>';return;}
+  itens.sort((a,b)=>a.h.localeCompare(b.h));
+  let html='<p class="note">Para cada linha, crie um job no cron-job.org no horário indicado (fuso do seu país) e cole a URL:</p>';
+  itens.forEach(({m,h})=>{
+    const url=waURL(`💊 Hora do remédio: ${m.nome}${m.dose?' ('+m.dose+')':''} — previsto ${h}`);
+    html+=`<div class="medItem"><div class="info"><b>${h}</b> — ${esc(m.nome)}
+      <small>${esc(url)}</small></div>
+      <button class="x" onclick="navigator.clipboard.writeText('${url.replace(/'/g,"\\'")}');this.textContent='Copiado!'">Copiar</button></div>`;
+  });
+  el.innerHTML=html;
+}
+
+/* ---------- MODO SIMPLES ---------- */
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function nowHM(){return new Date().toTimeString().slice(0,5);}
+function doseTaken(today,nome,horario){
+  return get().some(r=>r.data===today&&r.remedio===nome&&r.horarioPrevisto===horario&&
+    (r.tomou==='Sim'||r.statusDose==='No horário'||r.statusDose==='Atrasado'));
+}
+function renderSimples(){
+  const el=document.getElementById('doseList');if(!el)return;
+  const today=todayStr(),meds=getMeds(),list=[];
+  meds.forEach(m=>parseHoras(m.horas).forEach(h=>list.push({nome:m.nome,dose:m.dose||'',horario:h})));
+  list.sort((a,b)=>a.horario.localeCompare(b.horario));
+  if(!list.length){el.innerHTML='<p class="note">Nenhum remédio com horário cadastrado. Vá na aba <b>Remédios</b> e toque em “Adicionar medicações do relatório”.</p>';return;}
+  el.innerHTML=list.map(d=>{
+    const done=doseTaken(today,d.nome,d.horario);
+    const n=d.nome.replace(/'/g,"\\'"),ds=d.dose.replace(/'/g,"\\'");
+    return `<div class="doseRow ${done?'done':''}">
+      <div><b>${d.horario}</b> — ${esc(d.nome)}${d.dose?`<br><small class="note">${esc(d.dose)}</small>`:''}</div>
+      <button class="doseBtn ${done?'done':''}" ${done?'disabled':''} onclick="marcarDose('${n}','${d.horario}','${ds}')">${done?'✓ Tomou':'Tomou'}</button>
+    </div>`;
+  }).join('');
+}
+function marcarDose(nome,horario,dose){
+  const now=new Date(),[ph,pm]=horario.split(':').map(Number);
+  const dif=(now.getHours()*60+now.getMinutes())-(ph*60+pm);
+  const r={tipo:'Rápido',data:todayStr(),hora:nowHM(),respondente:'',remedio:nome,dose:dose,
+    horarioPrevisto:horario,horaRem:nowHM(),atrasoMin:dif,statusDose:dif>10?'Atrasado':'No horário',
+    tomou:'Sim',ts:Date.now()};
+  const d=get();d.push(r);setAll(d);renderSimples();
+  if(typeof autoSync==='function')autoSync();
+}
+function salvarEstado(){
+  const obs=document.getElementById('sObs').value.trim();
+  if(!sel.sEstado&&sel.sTremor==null&&!obs){document.getElementById('sMsg').innerHTML='<div class="alert">Toque em como ele está (ou escreva uma observação).</div>';return;}
+  if(recOn&&recog)recog.stop();
+  const r={tipo:'Rápido',data:todayStr(),hora:nowHM(),estadoMotor:sel.sEstado||'',tremor:sel.sTremor??'',observacao:obs,ts:Date.now()};
+  const d=get();d.push(r);setAll(d);
+  let aviso='';
+  if(r.estadoMotor.indexOf('OFF')===0)aviso=' (estado OFF anotado)';
+  document.getElementById('sMsg').innerHTML='<div class="alert ok">✅ Registrado!'+aviso+'</div>';
+  delete sel.sEstado;delete sel.sTremor;
+  document.getElementById('sObs').value='';
+  document.querySelectorAll('#sEstado button,#sTremor button').forEach(b=>b.classList.remove('on'));
+  setTimeout(()=>document.getElementById('sMsg').innerHTML='',5000);
+  if(typeof autoSync==='function')autoSync();
+}
+let recog=null,recOn=false;
+function toggleVoz(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){document.getElementById('sMsg').innerHTML='<div class="alert">Este navegador não tem ditado por voz. Digite no campo acima. (No celular, o teclado tem um microfone que também funciona.)</div>';return;}
+  if(recOn&&recog){recog.stop();return;}
+  recog=new SR();recog.lang='pt-BR';recog.continuous=true;recog.interimResults=true;
+  const base=document.getElementById('sObs').value;
+  recog.onresult=e=>{let txt='';for(let i=e.resultIndex;i<e.results.length;i++)txt+=e.results[i][0].transcript;
+    document.getElementById('sObs').value=(base?base+' ':'')+txt;};
+  recog.onend=()=>{recOn=false;document.getElementById('micBtn').textContent='🎤 Falar observação';};
+  recog.onerror=ev=>{recOn=false;document.getElementById('micBtn').textContent='🎤 Falar observação';
+    document.getElementById('sMsg').innerHTML='<div class="alert">Não consegui ouvir (permita o microfone). Você pode digitar no campo acima.</div>';};
+  try{recog.start();recOn=true;document.getElementById('micBtn').textContent='⏹️ Parar (gravando...)';}
+  catch(e){recOn=false;}
+}
+
+/* ---------- GRÁFICOS ---------- */
+function lastDays(n){
+  const arr=[],now=new Date();
+  for(let i=n-1;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);arr.push(d.toISOString().slice(0,10));}
+  return arr;
+}
+function drawCharts(){
+  const all=get(),days=lastDays(14);
+  const tre=[],rig=[],offc=[],fall=[];
+  days.forEach(d=>{
+    const rs=all.filter(r=>r.data===d);
+    const t=nums(rs.map(r=>r.tremor)),g=nums(rs.map(r=>r.rigidez));
+    tre.push(t.length?t.reduce((a,b)=>a+b,0)/t.length:null);
+    rig.push(g.length?g.reduce((a,b)=>a+b,0)/g.length:null);
+    offc.push(rs.filter(r=>String(r.estadoMotor||'').indexOf('OFF')===0).length);
+    fall.push(rs.some(r=>r.queda==='Queda'));
+  });
+  drawLine('chartSint',days,[{data:tre,color:'#38bdf8'},{data:rig,color:'#fbbf24'}],10,fall);
+  drawBars('chartEstado',days,offc,'#f87171');
+}
+function xLabel(d){return d.slice(8)+'/'+d.slice(5,7);}
+function drawLine(id,labels,series,maxY,marks){
+  const c=document.getElementById(id);if(!c||!c.getContext)return;
+  const ctx=c.getContext('2d'),W=c.width,H=c.height,padT=12,padB=26,padL=26;
+  ctx.clearRect(0,0,W,H);
+  ctx.font='11px sans-serif';
+  for(let v=0;v<=maxY;v+=5){
+    const y=H-padB-(v/maxY)*(H-padT-padB);
+    ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-8,y);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.fillText(v,6,y+4);
+  }
+  const n=labels.length,X=i=>padL+(i/(n-1))*(W-padL-8);
+  series.forEach(s=>{
+    ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.beginPath();let started=false;
+    s.data.forEach((v,i)=>{if(v==null){started=false;return;}const y=H-padB-(v/maxY)*(H-padT-padB);if(!started){ctx.moveTo(X(i),y);started=true;}else ctx.lineTo(X(i),y);});
+    ctx.stroke();
+    ctx.fillStyle=s.color;
+    s.data.forEach((v,i)=>{if(v==null)return;const y=H-padB-(v/maxY)*(H-padT-padB);ctx.beginPath();ctx.arc(X(i),y,2.6,0,7);ctx.fill();});
+  });
+  if(marks){ctx.fillStyle='#f87171';marks.forEach((m,i)=>{if(m){ctx.beginPath();ctx.arc(X(i),H-padB+9,3,0,7);ctx.fill();}});}
+  ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';
+  labels.forEach((d,i)=>{if(i%2)return;ctx.fillText(xLabel(d),X(i)-9,H-8);});
+}
+function drawBars(id,labels,vals,color){
+  const c=document.getElementById(id);if(!c||!c.getContext)return;
+  const ctx=c.getContext('2d'),W=c.width,H=c.height,padT=12,padB=26,padL=26;
+  ctx.clearRect(0,0,W,H);
+  const maxY=Math.max(3,...vals);
+  ctx.font='11px sans-serif';
+  for(let k=0;k<=maxY;k+=Math.ceil(maxY/3)){
+    const y=H-padB-(k/maxY)*(H-padT-padB);
+    ctx.strokeStyle='#475569';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-8,y);ctx.stroke();
+    ctx.fillStyle='#94a3b8';ctx.fillText(k,6,y+4);
+  }
+  const n=labels.length,bw=(W-padL-12)/n*0.6,step=(W-padL-12)/n;
+  vals.forEach((v,i)=>{
+    const x=padL+step*i+step*0.2,h=(v/maxY)*(H-padT-padB),y=H-padB-h;
+    ctx.fillStyle=v?color:'#334155';ctx.fillRect(x,y,bw,Math.max(h,1));
+  });
+  ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';
+  labels.forEach((d,i)=>{if(i%2)return;ctx.fillText(xLabel(d),padL+step*i+step*0.1,H-8);});
+}
+
+/* ---------- NUVEM (Google Sheets) ---------- */
+const CURL='parkinson_dbs_cloud_url_v3',CTOK='parkinson_dbs_cloud_token_v3',
+      CAUTO='parkinson_dbs_cloud_auto_v3',CLAST='parkinson_dbs_cloud_last_v3';
+/* >>> VERSÃO HOSPEDADA (pública): URL já preenchida, mas SEM o token.
+   Cada celular cola a senha (token) uma vez na aba Backup > Nuvem e fica salvo no aparelho.
+   NÃO coloque o token aqui se este arquivo for ficar num repositório público. */
+const DEFAULT_CURL='https://script.google.com/macros/s/AKfycbxSntsVzDwvlK74NWsG1Mpf9dNNupB38qZo_2eSWY_ycBsupg66w231etpu2L9Qqu9_Ag/exec';
+const DEFAULT_CTOK='';
+function cloudStatus(msg,cls){const e=document.getElementById('cloudStatus');if(e)e.innerHTML=msg?`<div class="alert ${cls}">${msg}</div>`:'';}
+function cloudConfigured(){return !!(lsGet(CURL)&&lsGet(CTOK));}
+function setCloudAuto(){
+  const v=lsGet(CAUTO)==='Sim'?'Sim':'Não';
+  const seg=document.getElementById('cloudAuto');
+  if(seg)seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+}
+function salvarCloud(){
+  const url=document.getElementById('cloudUrl').value.trim();
+  const tok=document.getElementById('cloudToken').value.trim();
+  if(!url||!tok){cloudStatus('Preencha o endereço (URL) e a senha (token).','');return;}
+  if(!/\/exec$/.test(url)){cloudStatus('⚠️ A URL deve terminar em /exec. Confira a implantação do Apps Script.','');return;}
+  lsSet(CURL,url);lsSet(CTOK,tok);
+  cloudStatus('✅ Conexão salva. Toque em "Sincronizar agora" para o primeiro envio.','ok');
+}
+function mergeFromCloud(data){
+  const cur=get();const tss=new Set(cur.map(r=>String(r.ts)));
+  let add=0;(data.registros||[]).forEach(r=>{if(r.ts!==''&&r.ts!=null&&!tss.has(String(r.ts))){cur.push(r);add++;}});
+  if(add)setAll(cur);
+  if(!getMeds().length&&(data.remedios||[]).length)setMeds(data.remedios);
+  if(!Object.keys(getPaci()).length&&data.paciente&&Object.keys(data.paciente).length)lsSet(PKEY,JSON.stringify(data.paciente));
+  return add;
+}
+async function syncNow(manual){
+  if(!cloudConfigured()){if(manual)cloudStatus('Configure o endereço e a senha primeiro.','');return;}
+  const url=lsGet(CURL),token=lsGet(CTOK);
+  if(manual)cloudStatus('🔄 Sincronizando...','');
+  try{
+    const payload={token,registros:get(),remedios:getMeds(),paciente:getPaci()};
+    const resp=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    const data=await resp.json();
+    if(!data.ok){cloudStatus('❌ Erro do servidor: '+(data.error==='token'?'senha (token) não confere com o script.':data.error),'danger');return;}
+    const add=mergeFromCloud(data);
+    lsSet(CLAST,new Date().toISOString());
+    if(typeof render==='function')render();
+    if(manual)cloudStatus(`✅ Sincronizado. ${get().length} registro(s) no total${add?` (${add} novo(s) baixado(s))`:''}. Última: ${new Date().toLocaleString('pt-BR')}.`,'ok');
+  }catch(err){
+    if(manual)cloudStatus('⚠️ Não consegui conectar agora. Os dados estão salvos no aparelho e vão para a planilha na próxima sincronização. (Verifique internet e a URL/senha.)','');
+  }
+}
+let cloudTimer=null;
+function autoSync(){
+  if(lsGet(CAUTO)!=='Sim'||!cloudConfigured())return;
+  clearTimeout(cloudTimer);
+  cloudTimer=setTimeout(()=>syncNow(false),1500); // agrupa envios e não trava o salvar
+}
+
+/* init */
+fillMedSelect();
+setLembreteSeg();
+checarLembretes();
+// liga os botões grandes do Modo Simples (não são .seg)
+['sEstado','sTremor'].forEach(id=>{
+  document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>pick(id,b.dataset.v,b));
+});
+renderSimples();
+(function(){
+  if(!lsOK){
+    const w=document.createElement('div');w.className='disc';w.style.borderLeftColor='#f87171';
+    w.innerHTML='⚠️ <b>Atenção:</b> este navegador/visualização está bloqueando o armazenamento local. '+
+      'O app funciona, mas <b>os dados não serão salvos ao fechar</b>. Para uso real, abra o arquivo '+
+      '<b>assistente-parkinson.html</b> diretamente no navegador do celular (Chrome/Safari), fora do modo anônimo.';
+    document.querySelector('.wrap').insertBefore(w,document.querySelector('.wrap').children[1]);
+  }
+  document.getElementById('waNum').value=lsGet(WANUM)||'';
+  document.getElementById('waKey').value=lsGet(WAKEY)||'';
+  setWaSeg();
+  // nuvem
+  // grava a conexão padrão na 1ª abertura (a família não precisa digitar nada)
+  if(DEFAULT_CURL&&!lsGet(CURL))lsSet(CURL,DEFAULT_CURL);
+  if(DEFAULT_CTOK&&!lsGet(CTOK))lsSet(CTOK,DEFAULT_CTOK);
+  document.getElementById('cloudUrl').value=lsGet(CURL)||DEFAULT_CURL;
+  document.getElementById('cloudToken').value=lsGet(CTOK)||DEFAULT_CTOK;
+  document.getElementById('cloudAuto').querySelectorAll('button').forEach(b=>{
+    b.onclick=()=>{lsSet(CAUTO,b.dataset.v);setCloudAuto();if(b.dataset.v==='Sim')syncNow(true);};
+  });
+  setCloudAuto();
+  if(cloudConfigured()){
+    const last=lsGet(CLAST);
+    cloudStatus('☁️ Conectado à planilha.'+(last?' Última sincronização: '+new Date(last).toLocaleString('pt-BR')+'.':''),'');
+    syncNow(false); // puxa novidades da família ao abrir
+  }
+})();
+</script>
+</body>
+</html>
