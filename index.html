@@ -21,7 +21,8 @@
   h3{font-size:15px;margin:14px 0 6px;color:var(--txt)}
   label{display:block;font-size:14px;color:var(--muted);margin:12px 0 4px}
   input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);
-    color:var(--txt);border-radius:10px;padding:11px;font-size:16px;font-family:inherit}
+    color:var(--txt);border-radius:10px;padding:11px;font-size:16px;font-family:inherit;
+    text-overflow:ellipsis}
   textarea{min-height:70px;resize:vertical}
   .row{display:flex;gap:10px;flex-wrap:wrap}
   .row>div{flex:1;min-width:130px}
@@ -226,7 +227,7 @@
         <div><label>Hora</label><input type="time" id="hora"></div>
       </div>
       <label>Quem está respondendo</label>
-      <input type="text" id="respondente" placeholder="Ex.: João (filho), Maria (esposa), o próprio paciente">
+      <input type="text" id="respondente" placeholder="Ex.: filho, esposa, o paciente">
     </div>
 
     <div class="card">
@@ -396,7 +397,7 @@
         <button data-v="Sim">Sim</button><button data-v="Não">Não</button><button data-v="Não sei">Não sei</button>
       </div>
       <label>Qual programa aparece no controle? (se a família souber)</label>
-      <input type="text" id="programa" placeholder="Ex.: Programa 1, Grupo A — ou deixe em branco">
+      <input type="text" id="programa" placeholder="Ex.: Programa 1 / Grupo A">
       <label>Bateria do estimulador</label>
       <div class="seg" id="bateria">
         <button data-v="OK">OK</button><button data-v="Baixa">Baixa</button><button data-v="Não sei">Não sei</button>
@@ -410,7 +411,7 @@
         <button data-v="Não">Não</button><button data-v="Sim">Sim</button><button data-v="Não sei">Não sei</button>
       </div>
       <label>Nível exibido no controle (se aparecer)</label>
-      <input type="text" id="nivelCtrl" placeholder="Ex.: nível/valor que aparece na tela — ou deixe em branco">
+      <input type="text" id="nivelCtrl" placeholder="Se aparecer, anote aqui">
       <div class="note">Apenas anote o que aparece. Não altere a programação do aparelho.</div>
     </div>
 
