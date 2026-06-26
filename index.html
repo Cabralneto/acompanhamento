@@ -29,7 +29,8 @@
   .seg{display:flex;gap:6px;flex-wrap:wrap}
   .seg button{flex:1;min-width:54px;background:var(--card2);border:1px solid var(--line);
     color:var(--txt);border-radius:10px;padding:10px 6px;font-size:15px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;text-align:center;min-height:46px;line-height:1.15}
+    display:flex;align-items:center;justify-content:center;text-align:center;min-height:46px;line-height:1.15;
+    overflow-wrap:anywhere;word-break:break-word;overflow:hidden}
   .seg button.on{background:var(--accent);color:#06263a;font-weight:700;border-color:var(--accent)}
   .scale button.on{background:var(--warn);color:#3a2a06;border-color:var(--warn)}
   .scale.high button.on{background:var(--bad);color:#3a0606;border-color:var(--bad)}
@@ -373,10 +374,10 @@
       <h2>🟢🔴 Estado motor (ON/OFF)</h2>
       <label>Como ele está neste momento?</label>
       <div class="seg" id="estadoMotor">
-        <button data-v="OFF (travado/lento)">OFF (travado/lento)</button>
-        <button data-v="ON sem discinesia">ON sem discinesia</button>
-        <button data-v="ON com discinesia leve">ON c/ discinesia leve</button>
-        <button data-v="ON com discinesia incômoda">ON c/ discinesia incômoda</button>
+        <button data-v="OFF (travado/lento)">OFF</button>
+        <button data-v="ON sem discinesia">ON</button>
+        <button data-v="ON com discinesia leve">ON disc. leve</button>
+        <button data-v="ON com discinesia incômoda">ON disc. incômoda</button>
         <button data-v="Dormindo">Dormindo</button>
       </div>
       <div class="note"><b>OFF</b> = remédio com pouco efeito (mais travado/lento). <b>ON</b> = remédio fazendo efeito.
