@@ -27,7 +27,8 @@
   .row>div{flex:1;min-width:130px}
   .seg{display:flex;gap:6px;flex-wrap:wrap}
   .seg button{flex:1;min-width:54px;background:var(--card2);border:1px solid var(--line);
-    color:var(--txt);border-radius:10px;padding:10px 6px;font-size:15px;cursor:pointer}
+    color:var(--txt);border-radius:10px;padding:10px 6px;font-size:15px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;text-align:center;min-height:46px;line-height:1.15}
   .seg button.on{background:var(--accent);color:#06263a;font-weight:700;border-color:var(--accent)}
   .scale button.on{background:var(--warn);color:#3a2a06;border-color:var(--warn)}
   .scale.high button.on{background:var(--bad);color:#3a0606;border-color:var(--bad)}
@@ -70,6 +71,21 @@
   .medItem .info{font-size:14px}
   .medItem .info small{color:var(--muted);display:block;word-break:break-all}
   .x{background:#450a0a;color:#fecaca;border:1px solid #f87171;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+  /* ===== Ajustes para celular (telas estreitas) ===== */
+  @media (max-width:560px){
+    body{font-size:16px}
+    .wrap{padding:12px}
+    .card{padding:13px}
+    /* colunas duplas viram uma coluna só — campos alinhados e sem corte */
+    .row{flex-direction:column;gap:0}
+    .row>div{min-width:0;width:100%}
+    /* abas e botões de seleção menores para caber o texto */
+    .tabs button{font-size:13px;padding:9px 5px;min-width:74px}
+    .seg button{font-size:14px;padding:9px 5px;min-height:48px}
+    .big button{font-size:17px;padding:16px}
+    /* não cortar rótulos longos */
+    label{white-space:normal;word-break:break-word}
+  }
 </style>
 </head>
 <body>
@@ -1492,9 +1508,8 @@ function drawBars(id,labels,vals,color){
 /* ---------- NUVEM (Google Sheets) ---------- */
 const CURL='parkinson_dbs_cloud_url_v3',CTOK='parkinson_dbs_cloud_token_v3',
       CAUTO='parkinson_dbs_cloud_auto_v3',CLAST='parkinson_dbs_cloud_last_v3';
-/* >>> VERSÃO HOSPEDADA (pública): URL já preenchida, mas SEM o token.
-   Cada celular cola a senha (token) uma vez na aba Backup > Nuvem e fica salvo no aparelho.
-   NÃO coloque o token aqui se este arquivo for ficar num repositório público. */
+/* >>> Conexão da nuvem já preenchida (a família só toca "Salvar conexão" e "Sincronizar").
+   TROQUE o token aqui se você gerar um novo no Apps Script. */
 const DEFAULT_CURL='https://script.google.com/macros/s/AKfycbxSntsVzDwvlK74NWsG1Mpf9dNNupB38qZo_2eSWY_ycBsupg66w231etpu2L9Qqu9_Ag/exec';
 const DEFAULT_CTOK='';
 function cloudStatus(msg,cls){const e=document.getElementById('cloudStatus');if(e)e.innerHTML=msg?`<div class="alert ${cls}">${msg}</div>`:'';}
